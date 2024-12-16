@@ -7,7 +7,7 @@ public class InfoPanel extends JPanel {
     public InfoPanel() {
         setLayout(new BorderLayout());
         setBackground(new Color(47, 49, 54));
-        setPreferredSize(new Dimension(200, 0)); // 정보 패널의 너비 설정
+        setPreferredSize(new Dimension(200, 50)); // 정보 패널의 너비 설정
 
         JLabel infoLabel = new JLabel("정보 패널");
         infoLabel.setForeground(new Color(220, 221, 222));

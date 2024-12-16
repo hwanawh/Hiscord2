@@ -12,10 +12,10 @@ public class RightPanel extends JPanel {
 
         // MemberPanel을 추가
         MemberPanel memberPanel = new MemberPanel();
-        add(memberPanel, BorderLayout.CENTER);
+        add(memberPanel, BorderLayout.NORTH);
 
         // InfoPanel을 추가 (기존의 InfoPanel과 동일)
         InfoPanel infoPanel = new InfoPanel();
-        add(infoPanel, BorderLayout.SOUTH);
+        add(infoPanel, BorderLayout.CENTER);
     }
 }
