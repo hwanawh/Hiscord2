@@ -25,19 +25,17 @@ public class MainFrame extends JFrame {
             ChannelPanel channelPanel = new ChannelPanel(out);
             add(channelPanel, BorderLayout.WEST);
 
-            // 접속 중인 멤버 패널 추가
-            RightPanel rightPanel = new RightPanel();
-            add(rightPanel, BorderLayout.EAST);
-
-            // 서버 메시지 수신
+             //접속 중인 멤버 패널 추가
+             RightPanel rightPanel = new RightPanel();
+             add(rightPanel, BorderLayout.EAST);
             new Thread(() -> {
                 try {
                     String message;
                     while ((message = in.readLine()) != null) {
                         if (message.startsWith("/members")) {
                             // 멤버 리스트 업데이트 메시지 처리
-                            String[] members = message.substring(9).split(",");
-                            rightPanel.updateMembers(Arrays.asList(members));
+                            //String[] members = message.substring(9).split(",");
+                            //rightPanel.updateMembers(Arrays.asList(members));
                         } else {
                             chatPanel.appendMessage(message);
                         }
@@ -46,8 +44,7 @@ public class MainFrame extends JFrame {
                     e.printStackTrace();
                 }
             }).start();
-
-            out.println(username);
+            System.out.println(username);
         } catch (IOException e) {
             e.printStackTrace();
         }
