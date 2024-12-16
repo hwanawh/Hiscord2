@@ -69,13 +69,16 @@ public class ChannelPanel extends JPanel {
             }
         });
 
-        addDefaultChannels();
+        addChannels();
     }
 
-    private void addDefaultChannels(){ //chatpanel,memberpanel,infopanel
+    private void addChannels(){ //chatpanel,memberpanel,infopanel
         String currentDirectory = System.getProperty("user.dir");
         System.out.println("현재 디렉토리: " + currentDirectory);
-        String path = "/hiscord2/resources/channel"; // 경로는 프로젝트 디렉토리 내에 맞춰 설정
+        String projectDir = System.getProperty("user.dir");
+        // 상대 경로를 합쳐서 최종 경로 만들기
+        String path = projectDir + "/resources/channel";
+
 
         File channelFolder = new File(path);
 
