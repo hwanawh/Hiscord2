@@ -2,6 +2,7 @@ package client.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.io.PrintWriter;
 
 public class ChannelPanel extends JPanel {
@@ -71,13 +72,24 @@ public class ChannelPanel extends JPanel {
         addDefaultChannels();
     }
 
-    private void addDefaultChannels() {
-        channelListModel.addElement("네프 회의");
-        channelListModel.addElement("채팅 공부");
-        channelListModel.addElement("웹만들기");
-        channelListModel.addElement("한성대학교");
-        channelListModel.addElement("환수월드");
-        channelListModel.addElement("준선월드");
+    private void addDefaultChannels(){ //chatpanel,memberpanel,infopanel
+        String currentDirectory = System.getProperty("user.dir");
+        System.out.println("현재 디렉토리: " + currentDirectory);
+        String path = "/hiscord2/resources/channel"; // 경로는 프로젝트 디렉토리 내에 맞춰 설정
+
+        File channelFolder = new File(path);
+
+        // resources/channel 폴더 내의 디렉토리 이름을 가져옴
+        File[] directories = channelFolder.listFiles(File::isDirectory);
+
+        if (directories != null) {
+            for (File dir : directories) {
+                channelListModel.addElement(dir.getName());
+                System.out.println(dir.getName());
+            }
+        } else {
+            System.out.println("No directories found or the path is incorrect.");
+        }
     }
 
     private class CircleCellRenderer extends DefaultListCellRenderer {

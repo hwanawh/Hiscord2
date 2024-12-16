@@ -18,16 +18,19 @@ public class MainFrame extends JFrame {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-            // 채팅 패널 및 채널 패널 추가
-            ChatPanel chatPanel = new ChatPanel(out);
-            add(chatPanel, BorderLayout.CENTER);
+
 
             ChannelPanel channelPanel = new ChannelPanel(out);
             add(channelPanel, BorderLayout.WEST);
 
+            // 채팅 패널 및 채널 패널 추가
+            ChatPanel chatPanel = new ChatPanel(out);
+            add(chatPanel, BorderLayout.CENTER);
+
              //접속 중인 멤버 패널 추가
              RightPanel rightPanel = new RightPanel();
              add(rightPanel, BorderLayout.EAST);
+
             new Thread(() -> {
                 try {
                     String message;
@@ -44,7 +47,7 @@ public class MainFrame extends JFrame {
                     e.printStackTrace();
                 }
             }).start();
-            System.out.println(username);
+            out.println(username);
         } catch (IOException e) {
             e.printStackTrace();
         }
