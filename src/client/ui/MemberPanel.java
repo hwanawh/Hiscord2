@@ -8,7 +8,7 @@ public class MemberPanel extends JPanel {
     private JList<String> memberList;
 
     public MemberPanel() {
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout()); //d
         setBackground(new Color(47, 49, 54));
 
         JLabel membersLabel = new JLabel("접속 중인 멤버");
