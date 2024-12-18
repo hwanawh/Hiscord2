@@ -136,4 +136,5 @@ public class ChatPanel extends JPanel {
             chatInput.setText("");
         }
     }
+
 }
