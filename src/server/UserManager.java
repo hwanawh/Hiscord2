@@ -32,20 +32,33 @@ public class UserManager {
                 // User 객체 생성 후 리스트에 추가
                 User user = new User(name, id, password, profileUrl);
                 users.add(user);
+
+                // 콘솔에 사용자 정보 출력
+                System.out.println("User Loaded:");
+                System.out.println("  Name: " + name);
+                System.out.println("  ID: " + id);
+                System.out.println("  Password: " + password);
+                if (profileUrl != null) {
+                    System.out.println("  Profile URL: " + profileUrl);
+                } else {
+                    System.out.println("  Profile URL: Not Provided");
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+
     // 로그인 인증 처리
-    public static User authenticateUser(String id, String password) {
+    public static boolean authenticateUser(String id, String password) {
+        System.out.println(id+":"+password);
         for (User user : users) {
             if (user.getId().equals(id) && user.getPassword().equals(password)) {
-                return user; // 인증 성공
+                return true; // 인증 성공
             }
         }
-        return null; // 인증 실패
+        return false; // 인증 실패
     }
 
     // 사용자 목록 반환

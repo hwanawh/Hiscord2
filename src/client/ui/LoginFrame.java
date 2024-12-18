@@ -16,11 +16,14 @@ import server.UserManager;
 public class LoginFrame extends JFrame {
     private JTextField usernameField, idField;
     private JPasswordField passwordField;
-
+    private BufferedReader in;
+    private PrintWriter out;
     public LoginFrame() throws IOException {
-//        Socket socket = new Socket("localhost", 12345);
-//        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//        PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
+
+        Socket socket = new Socket("localhost", 12345);
+        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        this.out = new PrintWriter(socket.getOutputStream(), true);
+
         setTitle("Hiscord");
         setSize(1200, 1000); // 창 크기 조정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -192,17 +195,54 @@ public class LoginFrame extends JFrame {
         String username = usernameField.getText();
         String id = idField.getText();
         String password = new String(passwordField.getPassword());
-        User user = UserManager.authenticateUser(id,password);
 
         if (!username.isEmpty() && !id.isEmpty() && !password.isEmpty()) {
-            if (user!=null) {
-                new MainFrame(user);
-                dispose();
-            } else {
-                JOptionPane.showMessageDialog(LoginFrame.this, "아이디나 비밀번호가 잘못되었습니다.", "Error", JOptionPane.ERROR_MESSAGE);
-            }
+            // 로그인 요청 메시지 서버로 전송
+            out.println("/login " + id + "/" + password);
+            // 서버 응답을 기다리는 스레드 생성
+            Thread responseThread = new Thread(() -> {
+                try {
+                    // 서버의 응답을 기다림
+                    String authentication = in.readLine();
+                    System.out.println("auth"+authentication);
+
+                    // 응답 처리 (Event Dispatch Thread에서 실행)
+                    SwingUtilities.invokeLater(() -> {
+                        if (authentication != null) {
+                            new MainFrame(authentication, in, out);
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(
+                                    LoginFrame.this,
+                                    "아이디나 비밀번호가 잘못되었습니다.",
+                                    "Error",
+                                    JOptionPane.ERROR_MESSAGE
+                            );
+                        }
+                    });
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    SwingUtilities.invokeLater(() -> {
+                        JOptionPane.showMessageDialog(
+                                LoginFrame.this,
+                                "서버와의 연결에 문제가 발생했습니다.",
+                                "Error",
+                                JOptionPane.ERROR_MESSAGE
+                        );
+                    });
+                }
+            });
+
+            // 스레드 시작
+            responseThread.start();
         } else {
-            JOptionPane.showMessageDialog(LoginFrame.this, "모든 필드를 입력하세요!", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(
+                    LoginFrame.this,
+                    "모든 필드를 입력하세요!",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
         }
     }
+
 }
