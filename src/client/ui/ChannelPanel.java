@@ -8,14 +8,15 @@ import java.io.PrintWriter;
 public class ChannelPanel extends JPanel {
     private DefaultListModel<String> channelListModel;
     private JList<String> channelList;
+    private RightPanel rightPanel; // RightPanel 인스턴스 추가
 
-    public ChannelPanel(PrintWriter out) {
+    public ChannelPanel(PrintWriter out, RightPanel rightPanel) { // RightPanel 인수 추가
+        this.rightPanel = rightPanel; // 인스턴스 초기화
         setLayout(new BorderLayout());
         setBackground(new Color(47, 49, 54));
 
         // UI 초기화
         initializeUI(out);
-
         // 채널 목록 불러오기
         addChannels();
     }
@@ -23,10 +24,8 @@ public class ChannelPanel extends JPanel {
     private void initializeUI(PrintWriter out) {
         // 상단 채널 라벨
         add(createChannelLabel(), BorderLayout.NORTH);
-
         // 중앙 채널 리스트
         add(createChannelList(out), BorderLayout.CENTER);
-
         // 하단 채널 추가 패널
         add(createAddChannelPanel(out), BorderLayout.SOUTH);
     }
@@ -52,6 +51,9 @@ public class ChannelPanel extends JPanel {
                 String selectedChannel = channelList.getSelectedValue();
                 if (selectedChannel != null) {
                     out.println("/join " + selectedChannel);
+                    // InfoPanel 업데이트
+                    boolean isChannel1 = selectedChannel.equals("channel1");
+                    rightPanel.updateInfoPanel(isChannel1);
                 }
             }
         });
