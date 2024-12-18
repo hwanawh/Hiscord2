@@ -1,15 +1,17 @@
 package client.ui;
 
+import models.User;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 import java.net.Socket;
-import java.util.Arrays;
 
 public class MainFrame extends JFrame {
-    public MainFrame(String username) {
-        setTitle("Chat - " + username);
-        setSize(1200, 1000);
+    private User user; //유저
+    public MainFrame(User user) {
+        setTitle("Chat - " + user.getName());
+        setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -18,41 +20,55 @@ public class MainFrame extends JFrame {
             BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
 
-
-
             ChannelPanel channelPanel = new ChannelPanel(out);
             add(channelPanel, BorderLayout.WEST);
 
-            // 채팅 패널 및 채널 패널 추가
             ChatPanel chatPanel = new ChatPanel(out);
             add(chatPanel, BorderLayout.CENTER);
 
-             //접속 중인 멤버 패널 추가
-             RightPanel rightPanel = new RightPanel();
-             add(rightPanel, BorderLayout.EAST);
+            RightPanel rightPanel = new RightPanel();
+            add(rightPanel, BorderLayout.EAST);
 
-            new Thread(() -> {
-                try {
-                    String message;
-                    while ((message = in.readLine()) != null) {
-                        if (message.startsWith("/members")) {
-                            // 멤버 리스트 업데이트 메시지 처리
-                            //String[] members = message.substring(9).split(",");
-                            //rightPanel.updateMembers(Arrays.asList(members));
-                        } else {
-                            chatPanel.appendMessage(message);
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-            out.println(username);
+            // 내부 클래스 Thread 실행
+            new MessageReaderThread(in, chatPanel).start();
+
+            // 사용자 이름 전송
+            out.println(user.getName());
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         setLocationRelativeTo(null);
         setVisible(true);
+    }
+
+    // 내부 클래스 구현
+    private class MessageReaderThread extends Thread {
+        private final BufferedReader in;
+        private final ChatPanel chatPanel;
+
+        public MessageReaderThread(BufferedReader in, ChatPanel chatPanel) {
+            this.in = in;
+            this.chatPanel = chatPanel;
+        }
+
+        @Override //처리할 메시지 채널변경,chat load
+        public void run() {
+            try {
+                String message;
+                while ((message = in.readLine()) != null) {
+                    if (message.startsWith("/join ")) {
+                        String newChannel = message.substring(6).trim();
+                        chatPanel.loadChat(newChannel);
+                        System.out.println("chat load");
+                    } else {
+                        chatPanel.appendMessage(message);
+                        System.out.println("message");
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

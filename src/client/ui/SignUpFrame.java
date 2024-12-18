@@ -112,7 +112,11 @@ public class SignUpFrame extends JFrame {
                     saveUserInfo(name, userid, password);
                     JOptionPane.showMessageDialog(SignUpFrame.this, "회원 가입 성공!", "Success", JOptionPane.INFORMATION_MESSAGE);
                     dispose(); // 회원가입 후 창 닫기
-                    new LoginFrame(); // 로그인 프레임 열기
+                    try {
+                        new LoginFrame(); // 로그인 프레임 열기
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
                 }
             }
         });

@@ -5,7 +5,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,12 +18,18 @@ public class ChatPanel extends JPanel {
         setLayout(new BorderLayout());
         setBackground(new Color(47, 49, 54));
 
-        // 이모티콘 맵 초기화
+        initializeEmojiMap();
+        initializeChatArea();
+        initializeInputPanel(out);
+    }
+
+    private void initializeEmojiMap() {
         emojiMap = new HashMap<>();
         emojiMap.put(":emoji1:", "resources/emoji/emoticon.png");
         emojiMap.put(":emoji2:", "resources/emoji/emoticon2.png");
+    }
 
-        // 채팅 영역 설정
+    private void initializeChatArea() {
         chatArea = new JTextPane();
         chatArea.setEditable(false);
         chatArea.setBackground(new Color(47, 49, 54));
@@ -33,8 +39,9 @@ public class ChatPanel extends JPanel {
         JScrollPane chatScrollPane = new JScrollPane(chatArea);
         chatScrollPane.setBorder(BorderFactory.createEmptyBorder());
         add(chatScrollPane, BorderLayout.CENTER);
+    }
 
-        // 채팅 입력 영역 설정
+    private void initializeInputPanel(PrintWriter out) {
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setBackground(new Color(47, 49, 54));
 
@@ -44,33 +51,44 @@ public class ChatPanel extends JPanel {
         chatInput.setCaretColor(new Color(220, 221, 222));
         inputPanel.add(chatInput, BorderLayout.CENTER);
 
-        // 이모티콘 버튼
+        JPanel buttonPanel = createButtonPanel(out);
+        inputPanel.add(buttonPanel, BorderLayout.EAST);
+
+        add(inputPanel, BorderLayout.SOUTH);
+    }
+
+    private JPanel createButtonPanel(PrintWriter out) {
+        JPanel buttonPanel = new JPanel(new BorderLayout());
+        buttonPanel.setBackground(new Color(47, 49, 54));
+
+        JButton emojiButton = createEmojiButton();
+        JButton sendButton = createSendButton(out);
+
+        buttonPanel.add(emojiButton, BorderLayout.WEST);
+        buttonPanel.add(sendButton, BorderLayout.EAST);
+
+        return buttonPanel;
+    }
+
+    private JButton createEmojiButton() {
         JButton emojiButton = new JButton("😊");
         emojiButton.setBackground(new Color(47, 49, 54));
         emojiButton.setForeground(Color.WHITE);
         emojiButton.setFocusPainted(false);
-        emojiButton.addActionListener(e -> showEmojiDialog()); // 버튼 클릭 시 이모티콘 창 표시
+        emojiButton.addActionListener(e -> showEmojiDialog());
+        return emojiButton;
+    }
 
-        // 메시지 전송 버튼
+    private JButton createSendButton(PrintWriter out) {
         JButton sendButton = new JButton("Send");
         sendButton.setBackground(new Color(88, 101, 242));
         sendButton.setForeground(Color.WHITE);
         sendButton.setFocusPainted(false);
         sendButton.addActionListener(e -> sendMessage(out));
-
-        JPanel buttonPanel = new JPanel(new BorderLayout());
-        buttonPanel.setBackground(new Color(47, 49, 54));
-        buttonPanel.add(emojiButton, BorderLayout.WEST);
-        buttonPanel.add(sendButton, BorderLayout.EAST);
-
-        inputPanel.add(buttonPanel, BorderLayout.EAST);
-        add(inputPanel, BorderLayout.SOUTH);
-
-        // 채팅 메시지 전송 이벤트
         chatInput.addActionListener(e -> sendMessage(out));
+        return sendButton;
     }
 
-    // 이모티콘 선택을 위한 다이얼로그 표시
     private void showEmojiDialog() {
         JDialog emojiDialog = new JDialog((Frame) null, "이모티콘", true);
         emojiDialog.setLayout(new GridLayout(1, emojiMap.size()));
@@ -88,7 +106,6 @@ public class ChatPanel extends JPanel {
         emojiDialog.setVisible(true);
     }
 
-    // 이모티콘을 채팅 입력란에 추가하는 메서드
     private void insertEmoji(String emojiCode) {
         chatInput.setText(chatInput.getText() + " " + emojiCode);
     }
@@ -110,7 +127,6 @@ public class ChatPanel extends JPanel {
                         chatArea.setCaretPosition(doc.getLength());
                         chatArea.insertIcon(new ImageIcon(entry.getValue()));
 
-                        // 줄바꿈 추가
                         doc.insertString(doc.getLength(), "\n", textAttrs);
 
                         message = parts.length > 1 ? parts[1] : "";
@@ -132,9 +148,47 @@ public class ChatPanel extends JPanel {
     private void sendMessage(PrintWriter out) {
         String message = chatInput.getText().trim();
         if (!message.isEmpty()) {
-            out.println(message); // 서버로 전송
+            out.println(message);
             chatInput.setText("");
         }
     }
 
+    public void loadChat(String channelName) {
+        String projectDir = System.getProperty("user.dir");
+        String path = projectDir + "/resources/channel/" + channelName + "/chats.txt";
+        System.out.println(path);
+
+        try {
+            File chatFile = new File(path);
+
+            if (!chatFile.exists()) {
+                appendMessage("[" + channelName + "] 채팅 기록 파일을 찾을 수 없습니다.");
+                return;
+            }
+
+            BufferedReader reader = new BufferedReader(new FileReader(chatFile));
+            String line;
+            appendMessage("[" + channelName + "] 채팅 기록 로드 시작:");
+
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+
+                if (parts.length >= 4) {
+                    String id = parts[0].trim();
+                    String date = parts[1].trim();
+                    String time = parts[2].trim();
+                    String message = parts[3].trim();
+
+                    appendMessage("[" + date + " " + time + "] " + id + ": " + message);
+                } else {
+                    appendMessage("잘못된 데이터 형식: " + line);
+                }
+            }
+
+            reader.close();
+            appendMessage("[" + channelName + "] 채팅 기록 로드 완료.");
+        } catch (IOException e) {
+            appendMessage("[" + channelName + "] 채팅 기록 로드 중 오류 발생: " + e.getMessage());
+        }
+    }
 }
