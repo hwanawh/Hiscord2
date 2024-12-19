@@ -95,6 +95,8 @@ public class ChannelPanel extends JPanel {
             if (!newChannel.isEmpty() && !channelListModel.contains(newChannel)) {
                 try {
                     dout.writeUTF("/addchannel " + newChannel);
+                    // 채널 리스트 갱신
+                    channelListModel.addElement(newChannel);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }

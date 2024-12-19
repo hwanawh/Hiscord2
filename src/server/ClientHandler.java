@@ -83,6 +83,28 @@ public class ClientHandler implements Runnable {
                             }
                             break;
                         case "/addchannel":
+                            String channelName = argument.trim();
+                            if (!channelName.isEmpty()) {
+                                // 폴더 생성
+                                String projectDir = System.getProperty("user.dir");
+                                String path = projectDir + "/resources/channel/" + channelName;
+                                File channelDir = new File(path);
+
+                                if (!channelDir.exists()) {
+                                    if (channelDir.mkdir()) {
+                                        // 채널 생성 성공
+                                        ChannelManager.addChannel(channelName);
+                                        dout.writeUTF("채널 '" + channelName + "'이 생성되었습니다.");
+                                    } else {
+                                        dout.writeUTF("채널 생성 실패.");
+                                    }
+                                } else {
+                                    dout.writeUTF("이미 존재하는 채널입니다.");
+                                }
+                            } else {
+                                dout.writeUTF("채널 이름을 입력하세요.");
+                            }
+                            break;
 
                         default:
                             dout.writeUTF("Unknown command: " + command);
