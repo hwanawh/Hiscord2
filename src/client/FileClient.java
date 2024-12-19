@@ -23,25 +23,37 @@ public class FileClient {
 
         File file = new File(filePath);
 
-        try (FileInputStream fileInput = new FileInputStream(file)) {
+        if (!file.exists()) {
+            System.err.println("파일이 존재하지 않습니다: " + filePath);
+            return;
+        }
 
+        try (FileInputStream fileInput = new FileInputStream(file)) {
             // 파일 전송 요청
-            dataOut.writeUTF("UPLOAD " + file.getName());
-            dataOut.writeLong(file.length());
+            System.out.println("업로드 시작: " + file.getName());
+            dataOut.writeUTF("UPLOAD " + file.getName());  // 파일 이름 전송
+            dataOut.writeLong(file.length());  // 파일 크기 전송
+            System.out.println("파일 이름과 크기 전송 완료.");
 
             // 파일 데이터 전송
             byte[] buffer = new byte[4096];
             int bytesRead;
+            long totalBytesSent = 0;  // 전송된 총 바이트
             while ((bytesRead = fileInput.read(buffer)) != -1) {
                 dataOut.write(buffer, 0, bytesRead);
+                totalBytesSent += bytesRead;
+
+                // 디버그: 현재까지 전송된 바이트 출력
+                System.out.println("전송된 바이트: " + totalBytesSent + " / " + file.length());
             }
+
             dataOut.flush();
             System.out.println("파일 업로드 완료: " + file.getName());
-
         } catch (IOException e) {
             System.err.println("파일 업로드 실패: " + e.getMessage());
         }
     }
+
 
     public static void downloadFile(String fileName, String savePath) {
         if (socket == null || dataIn == null || dataOut == null) {

@@ -8,23 +8,22 @@ import java.util.*;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
-    private BufferedReader in;
-    private PrintWriter out;
+    private DataInputStream din;
+    private DataOutputStream dout;
     String username;
     private String currentChannel = "channel1";
 
-    public ClientHandler(Socket socket) {
-        this.socket = socket;
+    public ClientHandler(DataInputStream din,DataOutputStream dout) {
+        this.din=din;
+        this.dout=dout;
     }
 
     @Override
     public void run() {
         try {
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            out = new PrintWriter(socket.getOutputStream(), true);
 
             String message;
-            while ((message = in.readLine()) != null) { //join시
+            while ((message = din.readUTF()) != null) { //join시
                 if (message.startsWith("/")) {
                     // 명령어 추출 (첫 번째 단어)
                     String command = message.split(" ", 2)[0].trim();
@@ -36,7 +35,7 @@ public class ClientHandler implements Runnable {
                             ChannelManager.leaveChannel(currentChannel, this);
                             currentChannel = newChannel;
                             ChannelManager.joinChannel(currentChannel, this);
-                            out.println("/join " + currentChannel);
+                            dout.writeUTF("/join " + currentChannel);
                             break;
 
                         case "/login":
@@ -51,18 +50,18 @@ public class ClientHandler implements Runnable {
                                     User user = UserManager.getUserById(id); // User 객체 반환
                                     if (user != null) {
                                         // 인증 성공: 사용자 이름 반환
-                                        out.println(user.getName());
+                                        dout.writeUTF(user.getName());
                                     } else {
                                         // 인증 실패: 사용자 정보 없음
-                                        out.println("없는 아이디입니다");
+                                        dout.writeUTF("없는 아이디입니다");
                                     }
                                 } else {
                                     // 인증 실패
-                                    out.println("Login Failed: Invalid credentials");
+                                    dout.writeUTF("Login Failed: Invalid credentials");
                                 }
                             } else {
                                 // 잘못된 명령어 형식 처리
-                                out.println("Login Failed: Incorrect command format");
+                                dout.writeUTF("Login Failed: Incorrect command format");
                             }
                             break;
 
@@ -75,18 +74,18 @@ public class ClientHandler implements Runnable {
                                 String profileUrl = userInfo[3].trim();
 
                                 if (UserManager.addUser(name, id, password, profileUrl)) {
-                                    out.println("회원가입 성공");
+                                    dout.writeUTF("회원가입 성공");
                                 } else {
-                                    out.println("이미 사용중인 아이디입니다");
+                                    dout.writeUTF("이미 사용중인 아이디입니다");
                                 }
                             } else {
-                                out.println("올바르게 입력하세요");
+                                dout.writeUTF("올바르게 입력하세요");
                             }
                             break;
-
+                        case "/addchannel":
 
                         default:
-                            out.println("Unknown command: " + command);
+                            dout.writeUTF("Unknown command: " + command);
                             break;
                     }
                 } else {
@@ -108,7 +107,7 @@ public class ClientHandler implements Runnable {
     }
 
 
-    public void sendMessage(String message) {
-        out.println(message);
+    public void sendMessage(String message) throws IOException {
+        dout.writeUTF(message);
     }
 }

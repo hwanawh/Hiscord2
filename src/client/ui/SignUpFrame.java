@@ -9,12 +9,12 @@ import java.io.*;
 public class SignUpFrame extends JFrame {
     private JTextField nameField, useridField, profileUrlField;
     private JPasswordField passwordField;
-    private BufferedReader in;
-    private PrintWriter out;
+    private DataInputStream din;
+    private DataOutputStream dout;
 
-    public SignUpFrame(BufferedReader in, PrintWriter out) {
-        this.in = in;
-        this.out = out;
+    public SignUpFrame(DataInputStream din,DataOutputStream dout) {
+        this.din = din;
+        this.dout = dout;
         setTitle("Sign Up");
         setSize(500, 500); // Increased size for the additional field
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -146,16 +146,20 @@ public class SignUpFrame extends JFrame {
             }
 
             // 서버로 회원가입 데이터 전송
-            out.println("/signup " + name + "/" + userId + "/" + password + "/" + profileUrl);
+            try {
+                dout.writeUTF("/signup " + name + "/" + userId + "/" + password + "/" + profileUrl);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
 
             // 서버 응답 처리
             try {
-                String response = in.readLine();
+                String response = din.readUTF();
                 if (response != null) {
                     if (response.startsWith("회원가입 성공")) {
                         JOptionPane.showMessageDialog(this, "회원 가입 성공!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dispose();
-                        new MainFrame(name, in, out);
+                        //new MainFrame(name, din, dout);
                     } else {
                         JOptionPane.showMessageDialog(this, response.replace("Signup Failed: ", ""), "Error", JOptionPane.ERROR_MESSAGE);
                     }

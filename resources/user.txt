@@ -2,3 +2,4 @@
 주환수,tommy1107,1234,null
 연승혁,123,123,haha
 babo,222,222,C:\Users\tommy\OneDrive\바탕 화면\Hiscord.png
+123,ff,ff,C:\Users\doror\Documents\yuta.png
