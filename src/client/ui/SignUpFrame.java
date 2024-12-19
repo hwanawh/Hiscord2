@@ -152,7 +152,7 @@ public class SignUpFrame extends JFrame {
             try {
                 String response = in.readLine();
                 if (response != null) {
-                    if (response.startsWith("Signup Successful")) {
+                    if (response.startsWith("회원가입 성공")) {
                         JOptionPane.showMessageDialog(this, "회원 가입 성공!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dispose();
                         new MainFrame(name, in, out);
@@ -164,6 +164,7 @@ public class SignUpFrame extends JFrame {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "서버와의 연결에 문제가 발생했습니다.", "Error", JOptionPane.ERROR_MESSAGE);
             }
+
         };
     }
 
