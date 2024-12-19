@@ -13,17 +13,16 @@ public class ClientHandler implements Runnable {
     String username;
     private String currentChannel = "channel1";
 
-    public ClientHandler(DataInputStream din,DataOutputStream dout) {
-        this.din=din;
-        this.dout=dout;
+    public ClientHandler(DataInputStream din, DataOutputStream dout) {
+        this.din = din;
+        this.dout = dout;
     }
 
     @Override
     public void run() {
         try {
-
             String message;
-            while ((message = din.readUTF()) != null) { //join시
+            while ((message = din.readUTF()) != null) { // join시
                 if (message.startsWith("/")) {
                     // 명령어 추출 (첫 번째 단어)
                     String command = message.split(" ", 2)[0].trim();
@@ -82,6 +81,7 @@ public class ClientHandler implements Runnable {
                                 dout.writeUTF("올바르게 입력하세요");
                             }
                             break;
+
                         case "/addchannel":
                             String channelName = argument.trim();
                             if (!channelName.isEmpty()) {
@@ -107,7 +107,20 @@ public class ClientHandler implements Runnable {
                             break;
 
                         case "/UPLOAD":
-                            FileServer.handleFileUpload(din,dout);
+                            FileServer.handleFileUpload(din, dout);
+                            break;
+
+                        case "/updateNotice":
+                            // /updateNotice <newNotice>
+                            String newNotice = argument.trim();
+                            if (!newNotice.isEmpty()) {
+                                // InfoManager를 통해 공지사항을 업데이트
+                                InfoManager infoManager = new InfoManager();
+                                infoManager.updateNotice(currentChannel, newNotice);
+                                dout.writeUTF("공지사항이 업데이트되었습니다.");
+                            } else {
+                                dout.writeUTF("새로운 공지사항을 입력하세요.");
+                            }
                             break;
 
                         default:
@@ -131,7 +144,6 @@ public class ClientHandler implements Runnable {
             }
         }
     }
-
 
     public void sendMessage(String message) throws IOException {
         dout.writeUTF(message);

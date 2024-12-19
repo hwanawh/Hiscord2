@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.Socket;
 
 import models.User;
+import server.InfoManager;
 import server.UserManager;
 
 public class LoginFrame extends JFrame {
@@ -212,7 +213,8 @@ public class LoginFrame extends JFrame {
                     SwingUtilities.invokeLater(() -> {
                         if (authentication != null && !authentication.startsWith("Login Failed")) {
                             try {
-                                new MainFrame(authentication, din, dout);
+                                InfoManager infoManager = new InfoManager();
+                                new MainFrame(authentication, din, dout, infoManager);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }
