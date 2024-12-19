@@ -7,7 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-public class ChatClient {
+public class Client {
     public static void main(String[] args) {
         try {
             // 서버 소켓 연결

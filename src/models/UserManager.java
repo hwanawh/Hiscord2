@@ -1,6 +1,4 @@
-package server;
-
-import models.User;
+package models;
 
 import java.io.*;
 import java.util.ArrayList;

@@ -7,9 +7,7 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 
-import models.User;
 import server.InfoManager;
-import server.UserManager;
 
 public class LoginFrame extends JFrame {
     private JTextField usernameField, idField;
@@ -214,7 +212,7 @@ public class LoginFrame extends JFrame {
                         if (authentication != null && !authentication.startsWith("Login Failed")) {
                             try {
                                 InfoManager infoManager = new InfoManager();
-                                new MainFrame(authentication, din, dout, infoManager);
+                                new MainFrame(id, din, dout, infoManager);
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
                             }

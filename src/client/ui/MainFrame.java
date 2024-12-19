@@ -2,6 +2,7 @@ package client.ui;
 
 import client.FileClient;
 import models.User;
+import models.UserManager;
 import server.InfoManager;  // InfoManager를 임포트
 
 import javax.swing.*;
@@ -10,9 +11,14 @@ import java.io.*;
 import java.net.Socket;
 
 public class MainFrame extends JFrame {
-    private User user; // 유저
+    private User loggedUser; // 유저
+    private String username;
+    private String localImageUrl;
 
-    public MainFrame(String username, DataInputStream din, DataOutputStream dout, InfoManager infoManager) throws IOException {
+    public MainFrame(String id, DataInputStream din, DataOutputStream dout, InfoManager infoManager) throws IOException {
+        loggedUser= UserManager.getUserById(id);
+        username = loggedUser.getName();
+        localImageUrl = System.getProperty("user.dir")+"/client_resources/Hiscord.png";
         setTitle("Chat - " + username);
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -63,6 +69,8 @@ public class MainFrame extends JFrame {
                         chatPanel.loadChat(newChannel);
                         System.out.println("chat load");
                         rightPanel.updateInfoPanel(newChannel.equals("channel1"));  // 채널 변경에 따라 RightPanel 업데이트
+                    } else if (message.startsWith("/message ")) {
+
                     } else {
                         chatPanel.appendMessage(message);
                         System.out.println("message");

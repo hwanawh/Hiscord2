@@ -8,7 +8,8 @@ public class User {
     private String name;
     private String id;
     private String password;
-    private String profileUrl; // 프로필 사진을 위한 필드 추가
+    private String profileUrl; // 프로필 사진
+    private String localImageUrl; //로컬 이미지 프로필 주소
 
     // profileUrl을 선택적 인자로 변경
     public User(String name, String id, String password) {
@@ -42,15 +43,12 @@ public class User {
         return profileUrl;
     }
 
+    public String getLocalImageUrl() {return localImageUrl;}
+
+    public void setLocalImageUrl(String localImageUrl) {this.localImageUrl = localImageUrl;}
     // 프로필 사진 URL을 변경할 때 사용하는 메서드
     public void setProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
     }
 
-    // 유저 정보를 확인하는 메서드는 별도의 방식으로 처리할 수 있습니다.
-    public static boolean isValidUser(String id, String password) {
-        // 파일에서 사용자 정보 확인 로직을 제거하고, 다른 방식으로 유효성 검사를 할 수 있도록 변경 필요
-        // 예: 데이터베이스에서 확인하거나 다른 방식으로 사용자 검증을 할 수 있음.
-        return false; // 현재는 검증 로직이 없으므로 false 반환
-    }
 }

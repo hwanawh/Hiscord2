@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ChatServer {
+public class Server {
     private static final int PORT = 12345;
     private static ExecutorService pool = Executors.newFixedThreadPool(10);
      // UserManager 객체 하나만 생성

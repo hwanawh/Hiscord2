@@ -6,6 +6,8 @@ import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.io.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -158,14 +160,36 @@ public class ChatPanel extends JPanel {
     }
 
     private void sendMessage(DataOutputStream dout) throws IOException {
+        // 사용자 입력 메시지 가져오기
         String message = chatInput.getText().trim();
+
         if (!message.isEmpty()) {
-            dout.writeUTF(message);
+            // 현재 날짜와 시간을 "yyyy-MM-dd HH:mm:ss" 형식으로 가져오기
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+            String dateTime = now.format(formatter);
+
+            // 날짜, 시간과 메시지를 합쳐서 전송
+            String formattedMessage = "/message " + dateTime + " " + message;
+            dout.writeUTF(formattedMessage);
+
+            // 입력 필드 초기화
             chatInput.setText("");
         }
     }
 
-    public void loadChat(String channelName) {
+
+
+    private void sendImage(DataOutputStream dout){
+
+    }
+
+    private void sendFile(DataOutputStream dout){
+
+    }
+
+    public void loadChat(String channelName) { //File을 직접 받아 출력?
+        chatArea.setText(""); //어쩔수없이 지우고 로드;;
         String projectDir = System.getProperty("user.dir");
         String path = projectDir + "/resources/channel/" + channelName + "/chats.txt";
         System.out.println(path);
@@ -180,7 +204,6 @@ public class ChatPanel extends JPanel {
 
             BufferedReader reader = new BufferedReader(new FileReader(chatFile));
             String line;
-            appendMessage("[" + channelName + "] 채팅 기록 로드 시작:");
 
             while ((line = reader.readLine()) != null) {
                 String[] parts = line.split(",");
@@ -198,7 +221,6 @@ public class ChatPanel extends JPanel {
             }
 
             reader.close();
-            appendMessage("[" + channelName + "] 채팅 기록 로드 완료.");
         } catch (IOException e) {
             appendMessage("[" + channelName + "] 채팅 기록 로드 중 오류 발생: " + e.getMessage());
         }
