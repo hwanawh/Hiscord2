@@ -17,7 +17,6 @@ public class MainFrame extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        FileClient.uploadFile("C:\\Users\\doror\\Desktop\\Hiscord\\resources\\user.txt");
 
         // RightPanel 인스턴스 생성
         RightPanel rightPanel = new RightPanel();
@@ -32,7 +31,9 @@ public class MainFrame extends JFrame {
 
         // 내부 클래스 Thread 실행
         new MessageReaderThread(din, chatPanel).start();
-
+        //String projectDir = System.getProperty("user.dir");
+        //String path = projectDir + "/resources/user.txt";
+        //FileClient.uploadFile(path);
         // 사용자 이름 전송
         dout.writeUTF(username);
 

@@ -199,7 +199,6 @@ public class LoginFrame extends JFrame {
             // 로그인 요청 메시지 서버로 전송
             //out.println("/login " + id + "/" + password);
             dout.writeUTF("/login " + id + "/" + password);
-
             // 서버 응답을 기다리는 스레드 생성
 
             Thread responseThread = new Thread(() -> {

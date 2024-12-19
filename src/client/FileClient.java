@@ -31,7 +31,7 @@ public class FileClient {
         try (FileInputStream fileInput = new FileInputStream(file)) {
             // 파일 전송 요청
             System.out.println("업로드 시작: " + file.getName());
-            dataOut.writeUTF("UPLOAD " + file.getName());  // 파일 이름 전송
+            dataOut.writeUTF("/UPLOAD " + file.getName());  // 파일 이름 전송
             dataOut.writeLong(file.length());  // 파일 크기 전송
             System.out.println("파일 이름과 크기 전송 완료.");
 
@@ -64,7 +64,7 @@ public class FileClient {
         try (FileOutputStream fileOut = new FileOutputStream(savePath)) {
 
             // 다운로드 요청
-            dataOut.writeUTF("DOWNLOAD " + fileName);
+            dataOut.writeUTF("/DOWNLOAD " + fileName);
 
             // 파일 수신
             long fileSize = dataIn.readLong();

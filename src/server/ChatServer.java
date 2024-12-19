@@ -23,7 +23,6 @@ public class ChatServer {
                 DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
 
                 System.out.println("New client connected");
-                FileServer fileServer = new FileServer(din,dout);
                 ClientHandler clientHandler = new ClientHandler(din,dout); // UserManager를 ClientHandler에 전달
                 pool.execute(clientHandler);
             }

@@ -106,6 +106,10 @@ public class ClientHandler implements Runnable {
                             }
                             break;
 
+                        case "/UPLOAD":
+                            FileServer.handleFileUpload(din,dout);
+                            break;
+
                         default:
                             dout.writeUTF("Unknown command: " + command);
                             break;

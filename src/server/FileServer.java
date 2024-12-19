@@ -3,43 +3,11 @@ package server;
 import java.io.*;
 import java.net.Socket;
 
-public class FileServer implements Runnable {
+public class FileServer {
     private static final String FILE_DIRECTORY = "server_files/";  // 파일을 저장할 디렉토리
-    private Socket clientSocket;
-    private DataInputStream din;
-    private DataOutputStream dout;
 
-    public FileServer(DataInputStream din,DataOutputStream dout) throws IOException {
-        this.clientSocket = clientSocket;
-        this.din=din;
-        this.dout=dout;
-    }
 
-    @Override
-    public void run() {
-        try {
-            String request;
-            while ((request = din.readUTF()) != null) {  // 클라이언트의 요청 처리
-                if (request.startsWith("UPLOAD")) {
-                    handleFileUpload();
-                } else if (request.startsWith("DOWNLOAD")) {
-                    handleFileDownload();
-                } else {
-                    dout.writeUTF("Unknown command: " + request);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                clientSocket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    private void handleFileUpload() throws IOException {
+    public static void handleFileUpload(DataInputStream din,DataOutputStream dout) throws IOException {
         try {
             // 파일 이름 받기
             String fileName = din.readUTF();
@@ -80,7 +48,7 @@ public class FileServer implements Runnable {
 
 
     // 파일 다운로드 처리
-    private void handleFileDownload() throws IOException {
+    public static void handleFileDownload(DataInputStream din,DataOutputStream dout) throws IOException {
         try {
             // 다운로드할 파일 이름 받기
             String fileName = din.readUTF();
