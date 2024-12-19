@@ -1,3 +1,4 @@
+//right
 package client.ui;
 
 import javax.swing.*;
@@ -21,6 +22,7 @@ public class RightPanel extends JPanel {
     }
 
     public void updateInfoPanel(boolean isChannel1) {
-        infoPanel.updateInfo(isChannel1);
+        infoPanel.updateInfo(isChannel1 ? "channel1" : "channel2");
     }
+
 }
