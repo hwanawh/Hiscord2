@@ -18,11 +18,9 @@ public class LoginFrame extends JFrame {
     private JPasswordField passwordField;
     private BufferedReader in;
     private PrintWriter out;
-    public LoginFrame() throws IOException {
-
-        Socket socket = new Socket("localhost", 12345);
-        this.in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        this.out = new PrintWriter(socket.getOutputStream(), true);
+    public LoginFrame(Socket socket) throws IOException {
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+        out = new PrintWriter(socket.getOutputStream(), true);
 
         setTitle("Hiscord");
         setSize(1200, 1000); // 창 크기 조정
@@ -184,7 +182,7 @@ public class LoginFrame extends JFrame {
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SignUpFrame();
+                new SignUpFrame(in,out);
                 dispose();
             }
         });
@@ -204,7 +202,7 @@ public class LoginFrame extends JFrame {
                 try {
                     // 서버의 응답을 기다림
                     String authentication = in.readLine();
-                    System.out.println("auth"+authentication);
+                    System.out.println("auth"+authentication); //authentication은 username반환
 
                     // 응답 처리 (Event Dispatch Thread에서 실행)
                     SwingUtilities.invokeLater(() -> {

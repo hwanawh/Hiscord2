@@ -17,6 +17,7 @@ public class ChatServer {
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected");
+                FileServer.setSocket(clientSocket);
                 ClientHandler clientHandler = new ClientHandler(clientSocket); // UserManager를 ClientHandler에 전달
                 pool.execute(clientHandler);
             }

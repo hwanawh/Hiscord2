@@ -49,21 +49,22 @@ public class ClientHandler implements Runnable {
                                 // UserManager의 로그인 인증
                                 if (UserManager.authenticateUser(id, password)) {
                                     User user = UserManager.getUserById(id); // User 객체 반환
-                                    System.out.println(user.getName());
+                                    System.out.println(user.getName()); //아이디랑 비밀번호
                                     if (user != null) {
                                         // 인증 성공: 사용자 이름 반환
                                         out.println(user.getName());
                                     } else {
-
+                                        out.println("Login Failed");
                                     }
                                 } else {
                                     // 인증 실패
-
                                 }
                             } else {
                                 // 잘못된 명령어 형식 처리
-
                             }
+                            break;
+
+                        case "/signup":
                             break;
 
                         default:
