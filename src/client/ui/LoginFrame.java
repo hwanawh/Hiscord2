@@ -197,23 +197,26 @@ public class LoginFrame extends JFrame {
         if (!username.isEmpty() && !id.isEmpty() && !password.isEmpty()) {
             // 로그인 요청 메시지 서버로 전송
             out.println("/login " + id + "/" + password);
+
+
             // 서버 응답을 기다리는 스레드 생성
+
             Thread responseThread = new Thread(() -> {
                 try {
                     // 서버의 응답을 기다림
                     String authentication = in.readLine();
-                    System.out.println("auth"+authentication); //authentication은 username반환
+                    System.out.println("auth: " + authentication); // 응답 확인 로그
 
                     // 응답 처리 (Event Dispatch Thread에서 실행)
                     SwingUtilities.invokeLater(() -> {
-                        if (authentication != null) {
+                        if (authentication != null && !authentication.startsWith("Login Failed")) {
                             new MainFrame(authentication, in, out);
                             dispose();
                         } else {
                             JOptionPane.showMessageDialog(
                                     LoginFrame.this,
-                                    "아이디나 비밀번호가 잘못되었습니다.",
-                                    "Error",
+                                    "아이디 또는 비밀번호가 잘못되었습니다.",
+                                    "로그인 실패",
                                     JOptionPane.ERROR_MESSAGE
                             );
                         }
@@ -230,6 +233,7 @@ public class LoginFrame extends JFrame {
                     });
                 }
             });
+
 
             // 스레드 시작
             responseThread.start();
