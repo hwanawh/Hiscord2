@@ -136,19 +136,33 @@ public class SignUpFrame extends JFrame {
     private ActionListener createSignUpActionListener() {
         return e -> {
             String name = nameField.getText();
-            String userid = useridField.getText();
+            String userId = useridField.getText();
             String password = new String(passwordField.getPassword());
             String profileUrl = profileUrlField.getText();
 
-            if (name.isEmpty() || userid.isEmpty() || password.isEmpty() || profileUrl.isEmpty()) {
+            if (name.isEmpty() || userId.isEmpty() || password.isEmpty() || profileUrl.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "모든 항목을 채워주세요.", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if (isUserIdDuplicated(userid)) {
-                JOptionPane.showMessageDialog(this, "이미 사용 중인 아이디입니다.", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                saveUserInfo(name, userid, password, profileUrl);
-                JOptionPane.showMessageDialog(this, "회원 가입 성공!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                dispose();
-                new MainFrame(name,in,out); //바로 메인 프레임 진입
+                return;
+            }
+
+            // 서버로 회원가입 데이터 전송
+            out.println("/signup " + name + "/" + userId + "/" + password + "/" + profileUrl);
+
+            // 서버 응답 처리
+            try {
+                String response = in.readLine();
+                if (response != null) {
+                    if (response.startsWith("Signup Successful")) {
+                        JOptionPane.showMessageDialog(this, "회원 가입 성공!", "Success", JOptionPane.INFORMATION_MESSAGE);
+                        dispose();
+                        new MainFrame(name, in, out);
+                    } else {
+                        JOptionPane.showMessageDialog(this, response.replace("Signup Failed: ", ""), "Error", JOptionPane.ERROR_MESSAGE);
+                    }
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(this, "서버와의 연결에 문제가 발생했습니다.", "Error", JOptionPane.ERROR_MESSAGE);
             }
         };
     }

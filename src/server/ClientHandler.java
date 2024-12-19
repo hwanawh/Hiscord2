@@ -54,7 +54,7 @@ public class ClientHandler implements Runnable {
                                         out.println(user.getName());
                                     } else {
                                         // 인증 실패: 사용자 정보 없음
-                                        out.println("Login Failed: Invalid credentials");
+                                        out.println("없는 아이디입니다");
                                     }
                                 } else {
                                     // 인증 실패
@@ -67,7 +67,23 @@ public class ClientHandler implements Runnable {
                             break;
 
                         case "/signup":
+                            String[] userInfo = argument.split("/", 4);
+                            if (userInfo.length == 4) {
+                                String name = userInfo[0].trim();
+                                String id = userInfo[1].trim();
+                                String password = userInfo[2].trim();
+                                String profileUrl = userInfo[3].trim();
+
+                                if (UserManager.addUser(name, id, password, profileUrl)) {
+                                    out.println("회원가입 성공");
+                                } else {
+                                    out.println("이미 사용중인 아이디입니다");
+                                }
+                            } else {
+                                out.println("올바르게 입력하세요");
+                            }
                             break;
+
 
                         default:
                             out.println("Unknown command: " + command);
