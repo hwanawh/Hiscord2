@@ -4,10 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 
 import models.User;
@@ -16,12 +13,12 @@ import server.UserManager;
 public class LoginFrame extends JFrame {
     private JTextField usernameField, idField;
     private JPasswordField passwordField;
-    private BufferedReader in;
-    private PrintWriter out;
-    public LoginFrame(Socket socket) throws IOException {
-        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        out = new PrintWriter(socket.getOutputStream(), true);
+    private DataInputStream din;
+    private DataOutputStream dout;
 
+    public LoginFrame(Socket socket,DataInputStream din,DataOutputStream dout) throws IOException {
+        this.din=din;
+        this.dout=dout;
         setTitle("Hiscord");
         setSize(1200, 1000); // 창 크기 조정
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -159,7 +156,11 @@ public class LoginFrame extends JFrame {
         loginButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                handleLogin();
+                try {
+                    handleLogin();
+                } catch (IOException ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         });
     }
@@ -182,35 +183,40 @@ public class LoginFrame extends JFrame {
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new SignUpFrame(in,out);
+                //new SignUpFrame(din,dout);
                 dispose();
             }
         });
     }
 
     // 로그인 처리 메서드
-    private void handleLogin() {
+    private void handleLogin() throws IOException {
         String username = usernameField.getText();
         String id = idField.getText();
         String password = new String(passwordField.getPassword());
 
         if (!username.isEmpty() && !id.isEmpty() && !password.isEmpty()) {
             // 로그인 요청 메시지 서버로 전송
-            out.println("/login " + id + "/" + password);
-
+            //out.println("/login " + id + "/" + password);
+            dout.writeUTF("/login " + id + "/" + password);
 
             // 서버 응답을 기다리는 스레드 생성
 
             Thread responseThread = new Thread(() -> {
                 try {
                     // 서버의 응답을 기다림
-                    String authentication = in.readLine();
+                    //String authentication = in.readLine();
+                    String authentication = din.readUTF();
                     System.out.println("auth: " + authentication); // 응답 확인 로그
 
                     // 응답 처리 (Event Dispatch Thread에서 실행)
                     SwingUtilities.invokeLater(() -> {
                         if (authentication != null && !authentication.startsWith("Login Failed")) {
-                            new MainFrame(authentication, in, out);
+                            try {
+                                new MainFrame(authentication, din, dout);
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
                             dispose();
                         } else {
                             JOptionPane.showMessageDialog(

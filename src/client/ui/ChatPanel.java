@@ -14,13 +14,13 @@ public class ChatPanel extends JPanel {
     private JTextField chatInput;
     private Map<String, String> emojiMap;
 
-    public ChatPanel(PrintWriter out) {
+    public ChatPanel(DataOutputStream dout) {
         setLayout(new BorderLayout());
         setBackground(new Color(47, 49, 54));
 
         initializeEmojiMap();
         initializeChatArea();
-        initializeInputPanel(out);
+        initializeInputPanel(dout);
     }
 
     private void initializeEmojiMap() {
@@ -41,7 +41,7 @@ public class ChatPanel extends JPanel {
         add(chatScrollPane, BorderLayout.CENTER);
     }
 
-    private void initializeInputPanel(PrintWriter out) {
+    private void initializeInputPanel(DataOutputStream dout) {
         JPanel inputPanel = new JPanel(new BorderLayout());
         inputPanel.setBackground(new Color(47, 49, 54));
 
@@ -51,18 +51,18 @@ public class ChatPanel extends JPanel {
         chatInput.setCaretColor(new Color(220, 221, 222));
         inputPanel.add(chatInput, BorderLayout.CENTER);
 
-        JPanel buttonPanel = createButtonPanel(out);
+        JPanel buttonPanel = createButtonPanel(dout);
         inputPanel.add(buttonPanel, BorderLayout.EAST);
 
         add(inputPanel, BorderLayout.SOUTH);
     }
 
-    private JPanel createButtonPanel(PrintWriter out) {
+    private JPanel createButtonPanel(DataOutputStream dout) {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(new Color(47, 49, 54));
 
         JButton emojiButton = createEmojiButton();
-        JButton sendButton = createSendButton(out);
+        JButton sendButton = createSendButton(dout);
 
         buttonPanel.add(emojiButton, BorderLayout.WEST);
         buttonPanel.add(sendButton, BorderLayout.EAST);
@@ -79,13 +79,25 @@ public class ChatPanel extends JPanel {
         return emojiButton;
     }
 
-    private JButton createSendButton(PrintWriter out) {
+    private JButton createSendButton(DataOutputStream dout) {
         JButton sendButton = new JButton("Send");
         sendButton.setBackground(new Color(88, 101, 242));
         sendButton.setForeground(Color.WHITE);
         sendButton.setFocusPainted(false);
-        sendButton.addActionListener(e -> sendMessage(out));
-        chatInput.addActionListener(e -> sendMessage(out));
+        sendButton.addActionListener(e -> {
+            try {
+                sendMessage(dout);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        chatInput.addActionListener(e -> {
+            try {
+                sendMessage(dout);
+            } catch (IOException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
         return sendButton;
     }
 
@@ -145,10 +157,10 @@ public class ChatPanel extends JPanel {
         }
     }
 
-    private void sendMessage(PrintWriter out) {
+    private void sendMessage(DataOutputStream dout) throws IOException {
         String message = chatInput.getText().trim();
         if (!message.isEmpty()) {
-            out.println(message);
+            dout.writeUTF(message);
             chatInput.setText("");
         }
     }

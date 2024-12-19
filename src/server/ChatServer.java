@@ -1,5 +1,7 @@
 package server;
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -15,10 +17,14 @@ public class ChatServer {
         System.out.println("Chat server started...");
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             while (true) {
+
                 Socket clientSocket = serverSocket.accept();
+                DataInputStream din = new DataInputStream(clientSocket.getInputStream());
+                DataOutputStream dout = new DataOutputStream(clientSocket.getOutputStream());
+
                 System.out.println("New client connected");
-                FileServer.setSocket(clientSocket);
-                ClientHandler clientHandler = new ClientHandler(clientSocket); // UserManager를 ClientHandler에 전달
+                FileServer fileServer = new FileServer(din,dout);
+                ClientHandler clientHandler = new ClientHandler(din,dout); // UserManager를 ClientHandler에 전달
                 pool.execute(clientHandler);
             }
         } catch (IOException e) {

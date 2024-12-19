@@ -10,7 +10,7 @@ import java.net.Socket;
 public class MainFrame extends JFrame {
     private User user; // 유저
 
-    public MainFrame(String username,BufferedReader in,PrintWriter out) {
+    public MainFrame(String username,DataInputStream din,DataOutputStream dout) throws IOException {
         setTitle("Chat - " + username);
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -21,17 +21,17 @@ public class MainFrame extends JFrame {
         add(rightPanel, BorderLayout.EAST);
 
         // ChannelPanel 생성 시 RightPanel 전달
-        ChannelPanel channelPanel = new ChannelPanel(out, rightPanel);
+        ChannelPanel channelPanel = new ChannelPanel(dout, rightPanel);
         add(channelPanel, BorderLayout.WEST);
 
-        ChatPanel chatPanel = new ChatPanel(out);
+        ChatPanel chatPanel = new ChatPanel(dout);
         add(chatPanel, BorderLayout.CENTER);
 
         // 내부 클래스 Thread 실행
-        new MessageReaderThread(in, chatPanel).start();
+        new MessageReaderThread(din, chatPanel).start();
 
         // 사용자 이름 전송
-        out.println(username);
+        dout.writeUTF(username);
 
         setLocationRelativeTo(null);
         setVisible(true);
@@ -39,11 +39,11 @@ public class MainFrame extends JFrame {
 
     // 내부 클래스 구현
     private static class MessageReaderThread extends Thread {
-        private final BufferedReader in;
+        private DataInputStream din;
         private final ChatPanel chatPanel;
 
-        public MessageReaderThread(BufferedReader in, ChatPanel chatPanel) {
-            this.in = in;
+        public MessageReaderThread(DataInputStream din, ChatPanel chatPanel) {
+            this.din = din;
             this.chatPanel = chatPanel;
         }
 
@@ -51,7 +51,7 @@ public class MainFrame extends JFrame {
         public void run() {
             try {
                 String message;
-                while ((message = in.readLine()) != null) {
+                while ((message = din.readUTF()) != null) {
                     if (message.startsWith("/join ")) {
                         String newChannel = message.substring(6).trim();
                         chatPanel.loadChat(newChannel);

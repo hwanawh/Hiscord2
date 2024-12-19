@@ -1,5 +1,6 @@
 package server;
 
+import java.io.IOException;
 import java.util.*;
 
 public class ChannelManager {
@@ -18,7 +19,7 @@ public class ChannelManager {
         }
     }
 
-    public static synchronized void broadcast(String channel, String message) {
+    public static synchronized void broadcast(String channel, String message) throws IOException {
         if (channels.containsKey(channel)) {
             for (ClientHandler client : channels.get(channel)) {
                 client.sendMessage(message);
