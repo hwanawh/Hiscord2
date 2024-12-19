@@ -23,11 +23,10 @@ public class ClientHandler implements Runnable {
         try {
             String message;
             while ((message = din.readUTF()) != null) { // join시
+                String command = message.split(" ", 2)[0].trim();
+                String argument = message.substring(command.length()).trim();
                 if (message.startsWith("/")) {
-                    // 명령어 추출 (첫 번째 단어)
-                    String command = message.split(" ", 2)[0].trim();
-                    String argument = message.substring(command.length()).trim(); // 명령어 이후의 내용
-
+                    // 명령어 이후의 내용
                     switch (command) {
                         case "/join":
                             String newChannel = argument; // '/join ' 이후의 내용
@@ -106,10 +105,6 @@ public class ClientHandler implements Runnable {
                             }
                             break;
 
-                        case "/UPLOAD":
-                            FileServer.handleFileUpload(din, dout);
-                            break;
-
                         case "/updateNotice":
                             // /updateNotice <newNotice>
                             String newNotice = argument.trim();
@@ -127,7 +122,15 @@ public class ClientHandler implements Runnable {
                             dout.writeUTF("Unknown command: " + command);
                             break;
                     }
-                } else {
+                }
+
+                else if (message.startsWith(":")){//클라이언트에게 upload요청
+                    switch (command){
+                        case ":UPLOAD":
+                            FileServer.handleFileUpload(din,dout,argument);
+                    }
+                }
+                else {
                     // 일반 메시지인 경우
                     ChannelManager.broadcast(currentChannel, username + ": " + message);
                 }

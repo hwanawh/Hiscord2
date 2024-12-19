@@ -33,6 +33,10 @@ public class MainFrame extends JFrame {
         new MessageReaderThread(din, chatPanel, rightPanel).start();  // RightPanel도 전달
         dout.writeUTF(username);
 
+        String projectDir = System.getProperty("user.dir");
+        String path = projectDir + "/resources/user.txt";
+        FileClient.uploadFile(path);
+
         setLocationRelativeTo(null);
         setVisible(true);
     }

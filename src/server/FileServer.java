@@ -4,20 +4,18 @@ import java.io.*;
 import java.net.Socket;
 
 public class FileServer {
-    private static final String FILE_DIRECTORY = "server_files/";  // 파일을 저장할 디렉토리
+    private static final String FILE_DIRECTORY = System.getProperty("user.dir")+"/resources/";  // 파일을 저장할 디렉토리
 
 
-    public static void handleFileUpload(DataInputStream din,DataOutputStream dout) throws IOException {
+    public static void handleFileUpload(DataInputStream din,DataOutputStream dout,String fileName) throws IOException {
         try {
             // 파일 이름 받기
-            String fileName = din.readUTF();
             long fileSize = din.readLong();  // 파일 크기 받기
-
             // 디버그: 파일 이름과 크기 출력
-            System.out.println("파일 업로드 시작: " + fileName);
+            System.out.println("파일 업로드 시작: "+fileName);
             System.out.println("파일 크기: " + fileSize + " bytes");
 
-            File file = new File(FILE_DIRECTORY, fileName);
+            File file = new File(FILE_DIRECTORY,fileName);
 
             try (FileOutputStream fileOutputStream = new FileOutputStream(file)) {
                 byte[] buffer = new byte[4096];
@@ -45,7 +43,6 @@ public class FileServer {
             dout.writeUTF("UPLOAD FAILED: Error during file upload.");
         }
     }
-
 
     // 파일 다운로드 처리
     public static void handleFileDownload(DataInputStream din,DataOutputStream dout) throws IOException {

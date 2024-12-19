@@ -15,7 +15,7 @@ public class ChatClient {
             DataInputStream din = new DataInputStream(socket.getInputStream());
             DataOutputStream dout = new DataOutputStream(socket.getOutputStream());
             // FileManager에 소켓 설정
-            FileClient.setSocket(socket);
+            FileClient.setSocket(din,dout);
 
             // 로그인 프레임 실행
             new LoginFrame(socket,din,dout);
