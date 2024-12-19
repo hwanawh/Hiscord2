@@ -1,5 +1,6 @@
 package client.ui;
 
+import client.FileClient;
 import models.User;
 
 import javax.swing.*;
@@ -15,6 +16,8 @@ public class MainFrame extends JFrame {
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
+
+        FileClient.uploadFile("C:\\Users\\doror\\Desktop\\Hiscord\\resources\\user.txt");
 
         // RightPanel 인스턴스 생성
         RightPanel rightPanel = new RightPanel();
