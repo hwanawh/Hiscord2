@@ -1,3 +1,5 @@
+//ClientHandler.java
+
 package server;
 
 import models.User;
@@ -50,6 +52,9 @@ public class ClientHandler implements Runnable {
                 break;
             case "/signup":
                 handleSignup(argument);
+                break;
+            case "/updateUserInfo":
+                handleUpdateUserInfo(argument);  // 새 명령어 처리
                 break;
             case "/addchannel":
                 handleAddChannel(argument);
@@ -117,6 +122,27 @@ public class ClientHandler implements Runnable {
             }
         } else {
             dout.writeUTF("올바르게 입력하세요");
+        }
+    }
+    private void handleUpdateUserInfo(String argument) throws IOException {
+        String[] updatedInfo = argument.split("/", 2);
+        if (updatedInfo.length == 2) {
+            String newName = updatedInfo[0].trim();
+            String newPassword = updatedInfo[1].trim();
+
+            if (loggedUser != null) {
+                loggedUser.setName(newName);
+                loggedUser.setPassword(newPassword);
+
+                // 수정된 사용자 정보를 UserManager에 저장
+                UserManager.saveUsersToFile(System.getProperty("user.dir") + "/resources/user.txt");
+
+                dout.writeUTF("정보가 성공적으로 수정되었습니다.");
+            } else {
+                dout.writeUTF("유저 정보 수정 실패: 로그인된 사용자가 없습니다.");
+            }
+        } else {
+            dout.writeUTF("잘못된 정보 형식입니다.");
         }
     }
 

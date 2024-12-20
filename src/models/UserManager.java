@@ -34,7 +34,7 @@ public class UserManager {
     }
 
     // 사용자 정보를 파일에 저장
-    private static void saveUsersToFile(String filePath) {
+    public static void saveUsersToFile(String filePath) {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath))) {
             for (User user : users) {
                 bw.write(user.getName() + "," + user.getId() + "," + user.getPassword() +

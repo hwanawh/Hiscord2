@@ -16,6 +16,8 @@ public class RightPanel extends JPanel {
         MemberPanel memberPanel = new MemberPanel();
         add(memberPanel, BorderLayout.NORTH);
 
+
+
         // InfoPanel을 추가, InfoManager를 전달하여 초기화
         infoPanel = new InfoPanel(infoManager);
         add(infoPanel, BorderLayout.CENTER);

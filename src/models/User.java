@@ -35,6 +35,10 @@ public class User {
         return id;
     }
 
+    public void setName(String name) { this.name = name; }
+
+    public void setPassword(String password) { this.password = password; }
+
     public String getPassword() {
         return password;
     }
