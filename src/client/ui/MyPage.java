@@ -79,7 +79,7 @@ public class MyPage extends JDialog {  // JDialog로 변경
 
                 // UI 갱신 후 종료
                 JOptionPane.showMessageDialog(MyPage.this, "정보가 수정되었습니다.");
-                dispose();  // MyPage 창 닫기
+                dispose();  // MyPage 창 닫기 (챗창은 유지)
             }
         });
         add(updateButton);
