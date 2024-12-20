@@ -17,48 +17,32 @@ public class MainFrame extends JFrame {
     private DataOutputStream dout;
 
     public MainFrame(String id, DataInputStream din, DataOutputStream dout, InfoManager infoManager) throws IOException {
-        this.dout = dout; // DataOutputStream을 전달받기
+        this.dout = dout;
         loggedUser = UserManager.getUserById(id);
-        username = loggedUser.getName();
-        localImageUrl = System.getProperty("user.dir") + "/client_resources/Hiscord.png";
-
-        setTitle("Chat - " + username);
+        setTitle("Chat - " + loggedUser.getName());
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // RightPanel 인스턴스 생성, InfoManager를 전달
-        RightPanel rightPanel = new RightPanel(infoManager);  // InfoManager 전달
+        // TopPanel을 사용하여 버튼 추가
+        TopPanel topPanel = new TopPanel(loggedUser, dout, this);  // TopPanel 생성
+        add(topPanel, BorderLayout.NORTH);  // 상단에 배치
+
+        // RightPanel 생성
+        RightPanel rightPanel = new RightPanel(infoManager);
         add(rightPanel, BorderLayout.EAST);
 
-        // ChannelPanel 생성 시 RightPanel 전달
+        // ChannelPanel 생성
         ChannelPanel channelPanel = new ChannelPanel(dout, rightPanel);
         add(channelPanel, BorderLayout.WEST);
 
+        // ChatPanel 생성
         ChatPanel chatPanel = new ChatPanel(dout);
         add(chatPanel, BorderLayout.CENTER);
 
-        // MyPage로 가는 버튼을 우측 상단에 배치
-        JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));  // FlowLayout으로 우측 정렬
-        topPanel.setBackground(new Color(47, 49, 54));
-        JButton myPageButton = new JButton("설정");
-        myPageButton.setPreferredSize(new Dimension(80, 30));  // 버튼 크기 설정
-        myPageButton.addActionListener(e -> {
-            MyPage myPage = new MyPage(loggedUser, dout, MainFrame.this);  // MainFrame을 부모로 전달
-            myPage.setVisible(true);  // JDialog이므로 setVisible을 true로 설정하여 표시
-            // dispose()를 호출하지 않음, 창이 닫히면 자동으로 돌아옴
-        });
-
-        topPanel.add(myPageButton);
-        add(topPanel, BorderLayout.NORTH);  // 상단에 버튼 배치
-
-        // 내부 클래스 Thread 실행
-        new MessageReaderThread(din, chatPanel, rightPanel).start();  // RightPanel도 전달
-        dout.writeUTF(username);
-
-        String projectDir = System.getProperty("user.dir");
-        String path = projectDir + "/resources/user.txt";
-        FileClient.uploadFile(path);
+        // MessageReaderThread 실행
+        new MessageReaderThread(din, chatPanel, rightPanel).start();
+        dout.writeUTF(loggedUser.getName());
 
         setLocationRelativeTo(null);
         setVisible(true);
