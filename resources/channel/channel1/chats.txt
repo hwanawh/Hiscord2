@@ -3,3 +3,4 @@
 123,2024-12-16,16:05:37,안녕하세요,NULL,./image/Hiscord.png
 123,2024-12-16,16:05:37,안녕하세요,NULL,./image/Hiscord.png
 123,2024-12-16,16:05:37,안녕하세요,NULL,./image/Hiscord.png
+1234,2024-12-20,16:25:44,안녕하세요 :emoji2: :emoji2: :emoji1: 안녕하세요,NULL,NULL

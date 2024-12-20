@@ -2,6 +2,7 @@
 
 package server;
 
+import models.Channel;
 import models.User;
 import models.UserManager;
 
@@ -10,12 +11,13 @@ import java.io.*;
 public class ClientHandler implements Runnable {
     private DataInputStream din;
     private DataOutputStream dout;
-    private String currentChannel = "channel1";
+    private String currentChannel;
     private User loggedUser;
 
-    public ClientHandler(DataInputStream din, DataOutputStream dout) {
+    public ClientHandler(DataInputStream din, DataOutputStream dout) throws IOException {
         this.din = din;
         this.dout = dout;
+        handleJoin("channel1");
     }
 
     @Override
@@ -63,7 +65,7 @@ public class ClientHandler implements Runnable {
                 handleUpdateNotice(argument);
                 break;
             case "/message":
-                handleMessage(loggedUser.getName()+":"+argument);
+                handleMessage(argument);
                 break;
             default:
                 dout.writeUTF("Unknown command: " + command);
@@ -71,16 +73,43 @@ public class ClientHandler implements Runnable {
     }
 
     public void handleMessage(String argument) throws IOException {
-        ChannelManager.broadcast(currentChannel, argument);
+        String message = loggedUser.getProfileUrl()+","+loggedUser.getName()+","+argument;
+        //message example hiscord.png , 황준선 , 12:06 , 안녕하세요
+        ChannelManager.broadcast(currentChannel, message);
+        //broadcast;
+        FileServer.handleFileUpload(din,dout,currentChannel,message);
     }
 
     private void handleFileCommand(String message) throws IOException {
         String command = message.split(" ", 2)[0].trim();
         String argument = message.substring(command.length()).trim();
 
-        if (":UPLOAD".equals(command)) {
-            FileServer.handleFileUpload(din, dout, argument);
+        switch (command) {
+            case ":UPLOAD_PROFILE":
+
+                break;
+            case ":UPLOAD_IMAGE":
+                FileServer.handleFileUpload(din,dout,currentChannel,argument);
+                //ChannelManager.broadcastImage(currentChannel,argument);
+                break;
+            case ":UPLOAD_FILE":
+
+                break;
+            case ":DOWNLOAD":
+
+                break;
+            case ":UPLOAD_INFO":
+
+                break;
+
+            default:
+                dout.writeUTF("Unknown command: " + command);
         }
+    }
+    public void sendMessage(String message) throws IOException {
+        System.out.println(message);
+        dout.writeUTF("/message " + message); //message =
+        //dout.writelong();
     }
 
     private void handleJoin(String newChannel) throws IOException {
@@ -124,6 +153,7 @@ public class ClientHandler implements Runnable {
             dout.writeUTF("올바르게 입력하세요");
         }
     }
+
     private void handleUpdateUserInfo(String argument) throws IOException {
         String[] updatedInfo = argument.split("/", 2);
         if (updatedInfo.length == 2) {
@@ -177,11 +207,5 @@ public class ClientHandler implements Runnable {
 
     private void cleanup() {
         ChannelManager.leaveChannel(currentChannel, this);
-    }
-
-
-    public void sendMessage(String message) throws IOException {
-        System.out.println(message);
-        dout.writeUTF(message);
     }
 }

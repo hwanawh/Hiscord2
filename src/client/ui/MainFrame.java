@@ -60,21 +60,42 @@ public class MainFrame extends JFrame {
             this.rightPanel = rightPanel;
         }
 
-        @Override // 처리할 메시지 채널변경, chat load
+        @Override // 처리할 메시지: 채널 변경, chat load
         public void run() {
             try {
                 String message;
                 while ((message = din.readUTF()) != null) {
-                    if (message.startsWith("/join ")) {
-                        String newChannel = message.substring(6).trim();
-                        chatPanel.loadChat(newChannel);
-                        System.out.println("chat load");
-                        rightPanel.updateInfoPanel(newChannel.equals("channel1"));  // 채널 변경에 따라 RightPanel 업데이트
-                    } else if (message.startsWith("/message ")) {
-                        // 메세지 처리
-                    } else {
-                        chatPanel.appendMessage(message);
-                        System.out.println("message");
+                    String command = message.contains(" ") ? message.substring(0, message.indexOf(" ")) : message;
+
+                    switch (command) {
+                        case "/join":
+                            String newChannel = message.substring(6).trim();
+                            chatPanel.loadChat(newChannel);
+                            System.out.println("chat load");
+                            rightPanel.updateInfoPanel(newChannel.equals("channel1")); // 채널 변경에 따라 RightPanel 업데이트
+                            break;
+
+                        case "/message":
+                            // 메시지 처리
+                            String chatMessage = message.substring(9).trim();
+                            chatPanel.appendMessage(chatMessage);
+                            System.out.println(chatMessage);
+                            System.out.println("message");
+                            break;
+
+                        case "/image":
+                            chatPanel.appendImage(din);
+                            break;
+
+                        case "/chatload":
+
+                            break;
+                        default:
+                            // 기본 메시지 처리
+                            chatPanel.appendMessage(message);
+                            System.out.println("message"+message);
+                            System.out.println("default message");
+                            break;
                     }
                 }
             } catch (IOException e) {

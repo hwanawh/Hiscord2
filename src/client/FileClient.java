@@ -12,23 +12,24 @@ public class FileClient {
         FileClient.dout =dout;
     }
 
-    public static void uploadFile(String filePath) {
+
+
+    public static void uploadFile(String formattedMessage,File file) {
         if (dout == null) {
             System.err.println("소켓이 초기화되지 않았습니다. setSocket()을 호출하세요.");
             return;
         }
 
-        File file = new File(filePath);
-
-        if (!file.exists()) {
-            System.err.println("파일이 존재하지 않습니다: " + filePath);
+        if (file == null || !file.exists()) {
+            System.err.println("파일이 존재하지 않거나 null입니다: " + file);
             return;
         }
 
         try (FileInputStream fileInput = new FileInputStream(file)) {
+            formattedMessage = formattedMessage + "," + file.getName();
             // 파일 전송 요청
             System.out.println("업로드 시작: " + file.getName());
-            dout.writeUTF(":UPLOAD " + file.getName());  // 파일 이름 전송
+            dout.writeUTF(formattedMessage);  // 파일 이름 전송
             dout.writeLong(file.length());  // 파일 크기 전송
             System.out.println("파일 이름과 크기 전송 완료.");
 
@@ -50,6 +51,7 @@ public class FileClient {
             System.err.println("파일 업로드 실패: " + e.getMessage());
         }
     }
+
 
 
     public static void downloadFile(String fileName, String savePath) {
