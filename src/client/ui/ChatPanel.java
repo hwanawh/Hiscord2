@@ -59,27 +59,24 @@ public class ChatPanel extends JPanel {
         add(inputPanel, BorderLayout.SOUTH);
     }
 
+
+
+
     private JPanel createButtonPanel(DataOutputStream dout) {
-        JPanel buttonPanel = new JPanel(new BorderLayout());
+        JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 5, 0));
         buttonPanel.setBackground(new Color(47, 49, 54));
 
         JButton emojiButton = createEmojiButton();
         JButton sendButton = createSendButton(dout);
+        JButton fileButton = createFileButton(dout);
 
-        buttonPanel.add(emojiButton, BorderLayout.WEST);
-        buttonPanel.add(sendButton, BorderLayout.EAST);
+        buttonPanel.add(emojiButton);
+        buttonPanel.add(sendButton);
+        buttonPanel.add(fileButton);
 
         return buttonPanel;
     }
 
-    private JButton createEmojiButton() {
-        JButton emojiButton = new JButton("😊");
-        emojiButton.setBackground(new Color(47, 49, 54));
-        emojiButton.setForeground(Color.WHITE);
-        emojiButton.setFocusPainted(false);
-        emojiButton.addActionListener(e -> showEmojiDialog());
-        return emojiButton;
-    }
 
     private JButton createSendButton(DataOutputStream dout) {
         JButton sendButton = new JButton("Send");
@@ -101,6 +98,38 @@ public class ChatPanel extends JPanel {
             }
         });
         return sendButton;
+    }
+
+    private JButton createEmojiButton() {
+        JButton emojiButton = new JButton("😊");
+        emojiButton.setBackground(new Color(47, 49, 54));
+        emojiButton.setForeground(Color.WHITE);
+        emojiButton.setFocusPainted(false);
+        emojiButton.addActionListener(e -> showEmojiDialog());
+        return emojiButton;
+    }
+
+    private JButton createFileButton(DataOutputStream dout) {
+        JButton fileButton = new JButton("파일 추가");
+        fileButton.setBackground(new Color(47, 49, 54));
+        fileButton.setForeground(Color.WHITE);
+        fileButton.setFocusPainted(false);
+        fileButton.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showOpenDialog(this);
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                try {
+                    sendFile(dout, selectedFile);
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "파일 전송 중 오류가 발생했습니다: " + ex.getMessage(),
+                            "오류",
+                            JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+        return fileButton;
     }
 
     private void showEmojiDialog() {
@@ -184,9 +213,29 @@ public class ChatPanel extends JPanel {
 
     }
 
-    private void sendFile(DataOutputStream dout){
+    private void sendFile(DataOutputStream dout, File file) throws IOException {
+        if (file == null || !file.exists()) {
+            JOptionPane.showMessageDialog(this, "유효하지 않은 파일입니다.", "오류", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
 
+        // 파일 이름과 크기를 전송
+        String message = "/file " + file.getName() + " " + file.length();
+        dout.writeUTF(message);
+
+        // 실제 파일 내용을 전송
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = fis.read(buffer)) != -1) {
+                dout.write(buffer, 0, bytesRead);
+            }
+            dout.flush();
+        }
+
+        JOptionPane.showMessageDialog(this, "파일 전송 완료: " + file.getName(), "알림", JOptionPane.INFORMATION_MESSAGE);
     }
+
 
     public void loadChat(String channelName) { //File을 직접 받아 출력?
         chatArea.setText(""); //어쩔수없이 지우고 로드;;
