@@ -7,12 +7,15 @@ import models.User;
 import models.UserManager;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ClientHandler implements Runnable {
     private DataInputStream din;
     private DataOutputStream dout;
     private String currentChannel;
     private User loggedUser;
+    private File testfile;
 
     public ClientHandler(DataInputStream din, DataOutputStream dout) throws IOException {
         this.din = din;
@@ -28,7 +31,7 @@ public class ClientHandler implements Runnable {
                 if (message.startsWith("/")) { //핸들 메시지
                     handleCommand(message);
                 } else if (message.startsWith(":")) { //File처리
-                    handleFileCommand(message);
+
                 } else {
                     // 일반 메시지 처리
                     //ChannelManager.broadcast(currentChannel, ": " + message);
@@ -67,49 +70,96 @@ public class ClientHandler implements Runnable {
             case "/message":
                 handleMessage(argument);
                 break;
+            case "/chatload":
+                chatLoad(argument);
             default:
                 dout.writeUTF("Unknown command: " + command);
         }
     }
+
+    public void chatLoad(String channelName) throws IOException {
+        String chatPath = System.getProperty("user.dir") + "/resources/channel/" + channelName + "/chats.txt";
+        List<String[]> chatMessages = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(chatPath))) {
+            String line;
+
+            while ((line = reader.readLine()) != null) {
+                System.out.println("Reading line: " + line); // 디버깅 출력
+                String[] parts = line.split(",", -1); // -1 옵션으로 빈 항목도 배열에 포함
+
+
+                if (parts.length < 4) {
+                    System.out.println("Warning: Unexpected line format. Skipping this line.");
+                    continue; // 배열 크기가 부족한 경우 무시
+                }
+
+                String filePathImage = parts[3].isEmpty() ? null : parts[3]; // 빈 값은 null 처리
+                chatMessages.add(new String[]{
+                        parts[0].trim(), // ID
+                        parts[1].trim(), // Timestamp
+                        parts[2].trim(), // Text message
+                        filePathImage // File path or null
+                });
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        for (String[] message : chatMessages) {
+            String id = message[0];
+            System.out.println("Processing ID: " + id); // 디버깅 출력
+            User user = UserManager.getUserById(id);
+
+            if (user == null) {
+                System.out.println("Warning: User not found for ID: " + id);
+                continue; // 유효하지 않은 ID는 무시
+            }
+
+            String profileUrl = user.getProfileUrl();
+            String senderName = user.getName();
+            String timestamp = message[1];
+            String textMessage = message[2];
+            String filePathImage = message[3]; // 이미 null 처리됨
+
+            String formattedMessage = "/message " + profileUrl + "," + senderName + "," + timestamp + "," +
+                    (textMessage.isEmpty() ? "null" : textMessage) + "," +
+                    (filePathImage == null ? "null" : filePathImage);
+            System.out.println("Formatted message: " + formattedMessage);
+            sendMessage(formattedMessage);
+        }
+    }
+
 
     public void handleMessage(String argument) throws IOException {
         String message = loggedUser.getProfileUrl()+","+loggedUser.getName()+","+argument;
-        //message example hiscord.png,황준선,12:06,안녕하세요,filename(nullable)
-        ChannelManager.broadcast(currentChannel, message);
-        //broadcast;
-        FileServer.handleFileUpload(din,dout,currentChannel,message);
-    }
-
-    private void handleFileCommand(String message) throws IOException {
-        String command = message.split(" ", 2)[0].trim();
-        String argument = message.substring(command.length()).trim();
-
-        switch (command) {
-            case ":UPLOAD_PROFILE":
-
-                break;
-            case ":UPLOAD_IMAGE":
-                FileServer.handleFileUpload(din,dout,currentChannel,argument);
-                //ChannelManager.broadcastImage(currentChannel,argument);
-                break;
-            case ":UPLOAD_FILE":
-
-                break;
-            case ":DOWNLOAD":
-
-                break;
-            case ":UPLOAD_INFO":
-
-                break;
-
-            default:
-                dout.writeUTF("Unknown command: " + command);
+        String chatMessage = message.substring(9).trim();
+        String[] parts = chatMessage.split(",");
+        String filename = parts.length > 4 ? parts[4] : null;
+        if(filename!=null){
+            FileServer.uploadFileToServer(din,currentChannel,filename);
         }
+
+        //message example hiscord.png,황준선,12:06,안녕하세요,filename(nullable)
+        ChannelManager.broadcast(currentChannel,message);
+        //broadcast;
+        //FileServer.handleFileUpload(din,dout,currentChannel,message);
     }
+
     public void sendMessage(String message) throws IOException {
+        // \profiles\Hiscord.png,주환수씨,2024-12-21 22:42:46,dd
+        String chatMessage = message.substring(9).trim();
+        String[] parts = chatMessage.split(",");
+        String filename = parts.length > 4 ? parts[4] : null;
+
+        if(filename!=null && !filename.equals("null")){
+            File file = new File(System.getProperty("user.dir")+"/resources/channel/"+currentChannel+"/channel_files/"+filename);
+            FileServer.distributeFile(dout,message,file);
+            System.out.println(message);
+            return;
+        }
         System.out.println(message);
-        dout.writeUTF("/message " + message); //message =
-        //dout.writelong();
+        dout.writeUTF("/message " + message);
     }
 
     private void handleJoin(String newChannel) throws IOException {

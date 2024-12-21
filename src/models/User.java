@@ -16,7 +16,7 @@ public class User {
         this.name = name;
         this.id = id;
         this.password = password;
-        this.profileUrl = null; // profileUrl 기본값을 null로 설정
+        this.profileUrl ="\\client_resources\\default.png"; // profileUrl 기본값을 null로 설정
     }
 
     // profileUrl을 포함한 생성자 (선택적)

@@ -27,6 +27,7 @@ public class UserManager {
 
                 // User 객체 생성 후 리스트에 추가
                 users.add(new User(name, id, password, profileUrl));
+                System.out.println(name+id+password+profileUrl);
             }
         } catch (IOException e) {
             e.printStackTrace();

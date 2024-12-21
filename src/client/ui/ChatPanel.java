@@ -42,9 +42,21 @@ public class ChatPanel extends JPanel {
         chatArea.setForeground(new Color(220, 221, 222));
         chatArea.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        JScrollPane chatScrollPane = new JScrollPane(chatArea);
+        JPanel chatContainer = new JPanel();
+        chatContainer.setLayout(new BoxLayout(chatContainer, BoxLayout.Y_AXIS));
+        chatContainer.setBackground(new Color(47, 49, 54));
+
+        JScrollPane chatScrollPane = new JScrollPane(chatContainer);
         chatScrollPane.setBorder(BorderFactory.createEmptyBorder());
+        chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+
         add(chatScrollPane, BorderLayout.CENTER);
+
+        // 기존 chatArea의 역할을 교체
+        this.chatArea = new JTextPane();
+        this.chatArea.setEditable(false);
+        this.chatArea.setBackground(new Color(47, 49, 54));
+        this.chatArea.setBorder(BorderFactory.createEmptyBorder());
     }
 
     private void initializeInputPanel(DataOutputStream dout) {
@@ -63,9 +75,6 @@ public class ChatPanel extends JPanel {
         add(inputPanel, BorderLayout.SOUTH);
     }
 
-
-
-
     private JPanel createButtonPanel(DataOutputStream dout) {
         JPanel buttonPanel = new JPanel(new GridLayout(1, 3, 5, 0));
         buttonPanel.setBackground(new Color(47, 49, 54));
@@ -80,7 +89,6 @@ public class ChatPanel extends JPanel {
 
         return buttonPanel;
     }
-
 
     private JButton createSendButton(DataOutputStream dout) {
         JButton sendButton = new JButton("Send");
@@ -155,115 +163,81 @@ public class ChatPanel extends JPanel {
         chatInput.setText(chatInput.getText() + " " + emojiCode);
     }
 
-    public void appendMessage(String message) {
-        String profileImagePath="C:\\demo\\Hiscord2\\client_resources\\Hiscord.png";
-        String author="name";
-        String timeline="11";
+    public void appendMessage(String profileUrl, String senderName, String timestamp, String greeting, File imageFile) {
         try {
-            // 메시지 패널 생성 (JPanel 사용)
+            // 메시지 패널 생성
             JPanel messagePanel = new JPanel();
             messagePanel.setLayout(new BorderLayout());
             messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            messagePanel.setPreferredSize(new Dimension(400, 150)); // 일정한 크기 설정
+            messagePanel.setMaximumSize(new Dimension(400, 150));
+            messagePanel.setBackground(new Color(64, 68, 75)); // 배경 색상 추가
 
-            // 프로필 사진 추가
-            ImageIcon profileIcon = new ImageIcon(profileImagePath);
-            Image scaledProfileImage = profileIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH); // 크기를 40x40으로 조정
+            // 프로필 사진
+            ImageIcon profileIcon = new ImageIcon(profileUrl);
+            Image scaledProfileImage = profileIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
             JLabel profileLabel = new JLabel(new ImageIcon(scaledProfileImage));
-            profileLabel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+            profileLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
             messagePanel.add(profileLabel, BorderLayout.WEST);
 
-            // 작성자, 타임라인, 메시지 내용을 포함할 패널
+            // 작성자, 타임라인, 메시지
             JPanel contentPanel = new JPanel();
             contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
+            contentPanel.setBackground(new Color(64, 68, 75));
 
-            // 작성자와 타임라인 추가
-            JLabel authorLabel = new JLabel(author);
-            JLabel timelineLabel = new JLabel(timeline);
-            authorLabel.setFont(new Font("Arial", Font.BOLD, 14));
-            timelineLabel.setFont(new Font("Arial", Font.ITALIC, 12));
+            JLabel authorLabel = new JLabel(senderName);
+            authorLabel.setForeground(Color.WHITE);
+            authorLabel.setFont(new Font("Malgun Gothic", Font.BOLD, 14));
+            JLabel timelineLabel = new JLabel(timestamp);
+            timelineLabel.setForeground(Color.LIGHT_GRAY);
+            timelineLabel.setFont(new Font("Malgun Gothic", Font.ITALIC, 12));
+
             contentPanel.add(authorLabel);
             contentPanel.add(timelineLabel);
 
-            // 메시지 내용 처리 (텍스트와 이모지 포함)
-            JPanel messageContentPanel = new JPanel();
-            messageContentPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+            // 텍스트 메시지 추가
+            if (greeting != null && !greeting.isEmpty()) {
+                JLabel messageLabel = new JLabel(greeting);
+                messageLabel.setForeground(Color.WHITE);
+                messageLabel.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
+                contentPanel.add(messageLabel);
+            }
 
-            while (!message.isEmpty()) {
-                boolean emojiFound = false;
-
-                // 이모지를 처리
-                for (Map.Entry<String, String> entry : emojiMap.entrySet()) {
-                    if (message.contains(entry.getKey())) {
-                        String[] parts = message.split(entry.getKey(), 2);
-
-                        // 텍스트가 있으면 추가
-                        if (!parts[0].isEmpty()) {
-                            JLabel textLabel = new JLabel(parts[0]);
-                            messageContentPanel.add(textLabel);
-                        }
-
-                        // 이모지 추가
-                        ImageIcon emojiIcon = new ImageIcon(entry.getValue());
-                        JLabel emojiLabel = new JLabel(emojiIcon);
-                        messageContentPanel.add(emojiLabel);
-
-                        // 메시지 업데이트
-                        message = parts.length > 1 ? parts[1] : "";
-                        emojiFound = true;
-                        break;
+            // 이미지 파일이 존재하는 경우 처리
+            if (imageFile != null && imageFile.exists()) {
+                try {
+                    // 파일에서 이미지 읽기
+                    BufferedImage image = ImageIO.read(imageFile);
+                    if (image != null) {
+                        JLabel imageLabel = new JLabel(new ImageIcon(image.getScaledInstance(200, 150, Image.SCALE_SMOOTH)));
+                        imageLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0)); // 이미지와 텍스트 간 간격
+                        contentPanel.add(imageLabel);
+                    } else {
+                        System.err.println("유효하지 않은 이미지 파일.");
                     }
-                }
-
-                // 이모지가 없으면 나머지 메시지 추가
-                if (!emojiFound) {
-                    JLabel textLabel = new JLabel(message);
-                    messageContentPanel.add(textLabel);
-                    message = ""; // 메시지 처리 완료
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
 
-            contentPanel.add(messageContentPanel);
-
-            // 메시지 패널에 추가
             messagePanel.add(contentPanel, BorderLayout.CENTER);
 
-            // chatArea에 추가
-            chatArea.setCaretPosition(chatArea.getDocument().getLength());
-            chatArea.insertComponent(messagePanel);
+            // chatContainer에 추가
+            JScrollPane scrollPane = (JScrollPane) this.getComponent(0); // ScrollPane 가져오기
+            JPanel chatContainer = (JPanel) scrollPane.getViewport().getView(); // ScrollPane의 View 가져오기
+            chatContainer.setLayout(new BoxLayout(chatContainer, BoxLayout.Y_AXIS)); // 메시지 수직 정렬
 
-            // 화면 갱신
-            chatArea.revalidate();
-            chatArea.repaint();
+            messagePanel.setAlignmentX(Component.LEFT_ALIGNMENT); // 왼쪽 정렬 유지
+            chatContainer.add(messagePanel);
+            chatContainer.add(Box.createVerticalStrut(10)); // 메시지 간 간격 추가
 
+            chatContainer.revalidate();
+            chatContainer.repaint();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void appendImage(DataInputStream din) {
-        StyledDocument doc = chatArea.getStyledDocument();
-        SimpleAttributeSet textAttrs = new SimpleAttributeSet();
-
-        try {
-            // 이미지 크기 수신
-            long imageSize = din.readLong(); // 이미지 크기 읽기
-            byte[] imageBytes = new byte[(int) imageSize];
-            din.readFully(imageBytes); // 이미지 데이터를 모두 읽기
-
-            // 바이트 데이터를 BufferedImage로 변환
-            BufferedImage image = ImageIO.read(new ByteArrayInputStream(imageBytes));
-            if (image != null) {
-                // 이미지가 유효하면 chatArea에 추가
-                chatArea.setCaretPosition(doc.getLength());
-                chatArea.insertIcon(new ImageIcon(image));
-                System.out.println("이미지 추가 완료");
-            } else {
-                System.err.println("유효하지 않은 이미지 데이터.");
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void sendMessage(DataOutputStream dout) throws IOException {
@@ -298,7 +272,7 @@ public class ChatPanel extends JPanel {
             String dateTime = now.format(formatter);
 
             if(selectedFile!=null){//파일 전송 코드
-                formattedMessage = "/message " + dateTime;
+                formattedMessage = "/message " + dateTime + "," + message;
                 FileClient.uploadFile(formattedMessage,selectedFile);
             } else{
                 formattedMessage = "/message " + dateTime + "," + message;
@@ -313,68 +287,5 @@ public class ChatPanel extends JPanel {
 
 
 
-    private void sendImage(DataOutputStream dout){
 
-    }
-
-    private void sendFile(DataOutputStream dout, File file) throws IOException {
-        if (file == null || !file.exists()) {
-            JOptionPane.showMessageDialog(this, "유효하지 않은 파일입니다.", "오류", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        // 파일 이름과 크기를 전송
-        String message = "/file " + file.getName() + " " + file.length();
-        dout.writeUTF(message);
-
-        // 실제 파일 내용을 전송
-        try (FileInputStream fis = new FileInputStream(file)) {
-            byte[] buffer = new byte[4096];
-            int bytesRead;
-            while ((bytesRead = fis.read(buffer)) != -1) {
-                dout.write(buffer, 0, bytesRead);
-            }
-            dout.flush();
-        }
-
-        JOptionPane.showMessageDialog(this, "파일 전송 완료: " + file.getName(), "알림", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    public void loadChat(String channelName) { //File을 직접 받아 출력?
-        chatArea.setText(""); //어쩔수없이 지우고 로드;;
-        String projectDir = System.getProperty("user.dir");
-        String path = projectDir + "/resources/channel/" + channelName + "/chats.txt";
-        System.out.println(path);
-
-        try {
-            File chatFile = new File(path);
-
-            if (!chatFile.exists()) {
-                appendMessage("[" + channelName + "] 채팅 기록 파일을 찾을 수 없습니다.");
-                return;
-            }
-
-            BufferedReader reader = new BufferedReader(new FileReader(chatFile));
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-
-                if (parts.length >= 4) {
-                    String id = parts[0].trim();
-                    String date = parts[1].trim();
-                    String time = parts[2].trim();
-                    String message = parts[3].trim();
-
-                    appendMessage("[" + date + " " + time + "] " + id + ": " + message);
-                } else {
-                    appendMessage("잘못된 데이터 형식: " + line);
-                }
-            }
-
-            reader.close();
-        } catch (IOException e) {
-            appendMessage("[" + channelName + "] 채팅 기록 로드 중 오류 발생: " + e.getMessage());
-        }
-    }
 }

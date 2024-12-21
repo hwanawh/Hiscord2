@@ -16,6 +16,7 @@ public class MainFrame extends JFrame {
     private String localImageUrl;
     private DataOutputStream dout;
 
+
     public MainFrame(String id, DataInputStream din, DataOutputStream dout, InfoManager infoManager) throws IOException {
         this.dout = dout;
         loggedUser = UserManager.getUserById(id);
@@ -41,7 +42,7 @@ public class MainFrame extends JFrame {
         add(chatPanel, BorderLayout.CENTER);
 
         // MessageReaderThread 실행
-        new MessageReaderThread(din, chatPanel, rightPanel).start();
+        new MessageReaderThread(din, dout,chatPanel, rightPanel).start();
         dout.writeUTF(loggedUser.getName());
 
         setLocationRelativeTo(null);
@@ -51,10 +52,13 @@ public class MainFrame extends JFrame {
     // 내부 클래스 구현
     private static class MessageReaderThread extends Thread {
         private DataInputStream din;
+        private DataOutputStream dout;
         private final ChatPanel chatPanel;
         private final RightPanel rightPanel;  // RightPanel을 멤버로 추가
+        private File testImage = new File("C:\\demo\\Hiscord2\\client_resources\\default.png");
 
-        public MessageReaderThread(DataInputStream din, ChatPanel chatPanel, RightPanel rightPanel) {
+        public MessageReaderThread(DataInputStream din, DataOutputStream dout,ChatPanel chatPanel, RightPanel rightPanel) {
+            this.dout =dout;
             this.din = din;
             this.chatPanel = chatPanel;
             this.rightPanel = rightPanel;
@@ -70,7 +74,8 @@ public class MainFrame extends JFrame {
                     switch (command) {
                         case "/join":
                             String newChannel = message.substring(6).trim();
-                            chatPanel.loadChat(newChannel);
+                            dout.writeUTF("/chatload "+newChannel);
+                            //chatPanel.loadChat(newChannel);
                             System.out.println("chat load");
                             rightPanel.updateInfoPanel(newChannel.equals("channel1")); // 채널 변경에 따라 RightPanel 업데이트
                             break;
@@ -81,7 +86,7 @@ public class MainFrame extends JFrame {
                             String[] parts = chatMessage.split(",");
 
                             // 변수 할당
-                            String profileUrl = parts[0];
+                            String profileUrl = System.getProperty("user.dir")+parts[0];
                             String senderName = parts[1];
                             String timestamp = parts[2];
                             String greeting = parts[3];
@@ -91,14 +96,44 @@ public class MainFrame extends JFrame {
                             System.out.println("timestamp: " + timestamp);
                             System.out.println("greeting: " + greeting);
                             System.out.println("filename: " + filename);
+                            if (filename != null && !filename.equals("null")) {
+                                // 이미지 파일 수신
+                                try {
+                                    // 이미지 크기 받기
+                                    long fileSize = din.readLong();
+                                    System.out.println("M1)파일 크기: " + fileSize + " bytes");
 
-                            chatPanel.appendMessage(chatMessage);
+                                    // 파일을 ByteArray로 저장
+                                    byte[] imageBytes = new byte[(int) fileSize];
+                                    din.readFully(imageBytes);
+
+                                    // 임시 디렉토리에 파일 저장
+                                    File tempFile = new File(System.getProperty("user.dir")+"/client_resources" + filename); // 파일 이름에 접두어 추가
+                                    try (FileOutputStream fileOutputStream = new FileOutputStream(tempFile)) {
+                                        fileOutputStream.write(imageBytes);
+                                        System.out.println("M2)파일 저장 완료: " + tempFile.getAbsolutePath());
+
+                                        // File 객체를 appendMessage에 전달
+                                        chatPanel.appendMessage(profileUrl, senderName, timestamp, greeting, tempFile);
+                                    } catch (IOException e) {
+                                        System.err.println("파일 저장 실패: " + e.getMessage());
+                                        e.printStackTrace(); // 예외 추적
+                                    }
+                                } catch (IOException e) {
+                                    System.err.println("파일 수신 실패: " + e.getMessage());
+                                    e.printStackTrace(); // 예외 추적
+                                }
+                            }
+                            else{
+                                chatPanel.appendMessage(profileUrl,senderName,timestamp,greeting,null);
+                            }
+
                             System.out.println(chatMessage);
                             System.out.println("message");
                             break;
 
                         case "/image":
-                            chatPanel.appendImage(din);
+                            //chatPanel.appendImage(din);
                             break;
 
                         case "/chatload":
@@ -106,7 +141,7 @@ public class MainFrame extends JFrame {
                             break;
                         default:
                             // 기본 메시지 처리
-                            chatPanel.appendMessage(message);
+                            //chatPanel.appendMessage(message);
                             System.out.println("message"+message);
                             System.out.println("default message");
                             break;

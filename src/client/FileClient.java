@@ -8,7 +8,7 @@ public class FileClient {
 
     // 소켓 설정 메서드
     public static void setSocket(DataInputStream din,DataOutputStream dout) throws IOException {
-        FileClient.din =din;
+        FileClient.din = din;
         FileClient.dout =dout;
     }
 
@@ -28,10 +28,10 @@ public class FileClient {
         try (FileInputStream fileInput = new FileInputStream(file)) {
             formattedMessage = formattedMessage + "," + file.getName();
             // 파일 전송 요청
-            System.out.println("업로드 시작: " + file.getName());
+            System.out.println("C1)업로드 시작: " + file.getName());
             dout.writeUTF(formattedMessage);  // 파일 이름 전송
             dout.writeLong(file.length());  // 파일 크기 전송
-            System.out.println("파일 이름과 크기 전송 완료.");
+            System.out.println("C2)파일 이름과 크기 전송 완료.");
 
             // 파일 데이터 전송
             byte[] buffer = new byte[4096];
@@ -42,11 +42,11 @@ public class FileClient {
                 totalBytesSent += bytesRead;
 
                 // 디버그: 현재까지 전송된 바이트 출력
-                System.out.println("전송된 바이트: " + totalBytesSent + " / " + file.length());
+                System.out.println("C3)전송된 바이트: " + totalBytesSent + " / " + file.length());
             }
 
             dout.flush();
-            System.out.println("파일 업로드 완료: " + file.getName());
+            System.out.println("C4)파일 업로드 완료: " + file.getName());
         } catch (IOException e) {
             System.err.println("파일 업로드 실패: " + e.getMessage());
         }
