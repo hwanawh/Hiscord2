@@ -25,6 +25,7 @@ public class ChannelManager {
 
     // 채널 메시지 브로드캐스트
     public static synchronized void broadcast(String channelName, String message) throws IOException {
+
         if (channels.containsKey(channelName)) {
             Channel channel = channels.get(channelName);
             channel.broadcastMessage(message);

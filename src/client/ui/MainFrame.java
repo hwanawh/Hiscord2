@@ -78,6 +78,20 @@ public class MainFrame extends JFrame {
                         case "/message":
                             // 메시지 처리
                             String chatMessage = message.substring(9).trim();
+                            String[] parts = chatMessage.split(",");
+
+                            // 변수 할당
+                            String profileUrl = parts[0];
+                            String senderName = parts[1];
+                            String timestamp = parts[2];
+                            String greeting = parts[3];
+                            String filename = parts.length > 4 ? parts[4] : null;
+                            System.out.println("profileUrl: " + profileUrl);
+                            System.out.println("senderName: " + senderName);
+                            System.out.println("timestamp: " + timestamp);
+                            System.out.println("greeting: " + greeting);
+                            System.out.println("filename: " + filename);
+
                             chatPanel.appendMessage(chatMessage);
                             System.out.println(chatMessage);
                             System.out.println("message");

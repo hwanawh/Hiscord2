@@ -31,7 +31,7 @@ public class ClientHandler implements Runnable {
                     handleFileCommand(message);
                 } else {
                     // 일반 메시지 처리
-                    ChannelManager.broadcast(currentChannel, ": " + message);
+                    //ChannelManager.broadcast(currentChannel, ": " + message);
                 }
             }
         } catch (IOException e) {
@@ -74,7 +74,7 @@ public class ClientHandler implements Runnable {
 
     public void handleMessage(String argument) throws IOException {
         String message = loggedUser.getProfileUrl()+","+loggedUser.getName()+","+argument;
-        //message example hiscord.png , 황준선 , 12:06 , 안녕하세요
+        //message example hiscord.png,황준선,12:06,안녕하세요,filename(nullable)
         ChannelManager.broadcast(currentChannel, message);
         //broadcast;
         FileServer.handleFileUpload(din,dout,currentChannel,message);

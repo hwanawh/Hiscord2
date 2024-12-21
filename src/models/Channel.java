@@ -28,6 +28,7 @@ public class Channel {
     }
 
     public void broadcastMessage(String message) throws IOException {
+
         for (ClientHandler client : clients) {
             client.sendMessage(message);
         }
