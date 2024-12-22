@@ -16,6 +16,7 @@ public class ChatPanel extends JPanel {
     private JTextPane chatArea;
     private JTextField chatInput;
     private Map<String, String> emojiMap;
+    private DataOutputStream dout;
 
     public ChatPanel(DataOutputStream dout) {
         setLayout(new BorderLayout());
@@ -155,7 +156,13 @@ public class ChatPanel extends JPanel {
 
     private void insertEmoji(String emojiCode) {
         chatInput.setText(chatInput.getText() + " " + emojiCode);
+        try {
+            sendMessage(dout); // 이모티콘이 입력된 후 바로 메시지 전송
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
+
 
     public void appendMessage(String profileUrl, String senderName, String timestamp, String greeting, File imageFile) {
         try {
