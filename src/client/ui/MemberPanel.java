@@ -30,10 +30,21 @@ public class MemberPanel extends JPanel {
         // 커스텀 렌더러 설정
         memberList.setCellRenderer(new MemberCellRenderer());
 
+
+
         JScrollPane memberScrollPane = new JScrollPane(memberList);
         memberScrollPane.setBorder(BorderFactory.createEmptyBorder());
         memberScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        memberScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // 수평 스크롤바 숨기기
+        memberScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0)); // 수직 스크롤바 숨기기
         add(memberScrollPane, BorderLayout.CENTER);
+
+        // 마우스 휠로 스크롤 가능하게 하기
+        memberScrollPane.addMouseWheelListener(e -> {
+            JScrollBar verticalScrollBar = memberScrollPane.getVerticalScrollBar();
+            int scrollAmount = e.getUnitsToScroll();
+            verticalScrollBar.setValue(verticalScrollBar.getValue() + (scrollAmount * 3)); // 스크롤 속도 조절
+        });
     }
 
     public void addMemberLabel(String profileUrl, String name) {

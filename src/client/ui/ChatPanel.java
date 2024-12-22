@@ -61,8 +61,21 @@ public class ChatPanel extends JPanel {
         chatScrollPane.setBorder(BorderFactory.createEmptyBorder());
         chatScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 
+        // 스크롤바 숨기기
+        chatScrollPane.getVerticalScrollBar().setPreferredSize(new Dimension(0, 0)); // 스크롤바 크기 0으로 설정
+        chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER); // 수평 스크롤바 숨기기
+
+        // 마우스 휠로 스크롤 가능하게 하기
+        chatScrollPane.addMouseWheelListener(e -> {
+            JScrollBar verticalScrollBar = chatScrollPane.getVerticalScrollBar();
+            int scrollAmount = e.getUnitsToScroll() * 10; // 휠로 이동하는 거리 10배로 늘림
+            verticalScrollBar.setValue(verticalScrollBar.getValue() + scrollAmount);
+        });
+
         add(chatScrollPane, BorderLayout.CENTER);
     }
+
+
 
     private void initializeInputPanel(DataOutputStream dout) {
         JPanel inputPanel = new JPanel(new BorderLayout());
@@ -254,6 +267,12 @@ public class ChatPanel extends JPanel {
 
             chatContainer.revalidate();
             chatContainer.repaint();
+
+            //스크롤 디폴트값을 맨아래로
+            SwingUtilities.invokeLater(() -> {
+                JScrollBar verticalScrollBar = scrollPane.getVerticalScrollBar();
+                verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }

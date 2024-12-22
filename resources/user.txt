@@ -1,6 +1,6 @@
 Jusun,1234,1234,\client_resources\Hiscord.png
 Hwnasu,5678,1234,\client_resources\default.png
-Tommy1,123,123,\client_resources\test2.png
+Tommy1,123,123,\client_resources\test.png
 babo,222,222,\client_resources\default.png
 123,ff,ff,\client_resources\default.png
 Jusun,1235,123,C:\Users\doror\Documents\yuta.png
