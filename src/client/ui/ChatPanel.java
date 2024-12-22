@@ -16,7 +16,7 @@ public class ChatPanel extends JPanel {
     private JTextPane chatArea;
     private JTextField chatInput;
     private Map<String, String> emojiMap;
-    private DataOutputStream dout;
+    private DataOutputStream dout; // dout을 멤버 변수로 선언
 
     public ChatPanel(DataOutputStream dout) {
         setLayout(new BorderLayout());

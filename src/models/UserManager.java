@@ -23,11 +23,10 @@ public class UserManager {
                 String name = userInfo[0].trim();
                 String id = userInfo[1].trim();
                 String password = userInfo[2].trim();
-                String profileUrl = (userInfo.length > 3) ? userInfo[3].trim() : null;
+                String profileUrl = (userInfo.length > 3) ? userInfo[3].trim() : "\\client_resources\\default.png";
 
                 // User 객체 생성 후 리스트에 추가
                 users.add(new User(name, id, password, profileUrl));
-                System.out.println(name+id+password+profileUrl);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -67,16 +66,6 @@ public class UserManager {
         return null; // 사용자 없음
     }
 
-    // id 중복 체크
-    public static boolean isUserIdDuplicated(String id) {
-        for (User user : users) {
-            if (user.getId().equals(id)) {
-                return true; // 중복됨
-            }
-        }
-        return false; // 중복되지 않음
-    }
-
     // 사용자 추가
     public static boolean addUser(String name, String id, String password, String profileUrl) {
         if (isUserIdDuplicated(id)) {
@@ -92,6 +81,31 @@ public class UserManager {
         saveUsersToFile(projectDir + "/resources/user.txt");
 
         return true;
+    }
+
+    // 사용자 프로필 URL 업데이트
+    public static boolean updateProfileUrl(String id, String newProfileUrl) {
+        for (User user : users) {
+            if (user.getId().equals(id)) {
+                user.setProfileUrl(newProfileUrl);
+
+                // 파일에 저장
+                String projectDir = System.getProperty("user.dir");
+                saveUsersToFile(projectDir + "/resources/user.txt");
+                return true;
+            }
+        }
+        return false; // ID에 해당하는 사용자 없음
+    }
+
+    // id 중복 체크
+    public static boolean isUserIdDuplicated(String id) {
+        for (User user : users) {
+            if (user.getId().equals(id)) {
+                return true; // 중복됨
+            }
+        }
+        return false; // 중복되지 않음
     }
 
     // 사용자 목록 반환

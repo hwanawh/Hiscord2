@@ -240,14 +240,19 @@ public class ClientHandler implements Runnable {
     }
 
     private void handleUpdateUserInfo(String argument) throws IOException {
-        String[] updatedInfo = argument.split("/", 2);
-        if (updatedInfo.length == 2) {
+        String[] updatedInfo = argument.split("/", 3); // 세 개로 나눔
+        if (updatedInfo.length == 3) {
             String newName = updatedInfo[0].trim();
             String newPassword = updatedInfo[1].trim();
+            String newProfileUrl = updatedInfo[2].trim();
+
+
+            newProfileUrl = "\\" + newProfileUrl;
 
             if (loggedUser != null) {
                 loggedUser.setName(newName);
                 loggedUser.setPassword(newPassword);
+                loggedUser.setProfileUrl(newProfileUrl); // 프로필 URL 업데이트
 
                 // 수정된 사용자 정보를 UserManager에 저장
                 UserManager.saveUsersToFile(System.getProperty("user.dir") + "/resources/user.txt");
@@ -260,6 +265,7 @@ public class ClientHandler implements Runnable {
             dout.writeUTF("잘못된 정보 형식입니다.");
         }
     }
+
 
     private void handleAddChannel(String channelName) throws IOException {
         channelName = channelName.trim();
