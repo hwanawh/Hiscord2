@@ -6,6 +6,7 @@ import server.InfoManager;  // InfoManager를 임포트
 
 public class RightPanel extends JPanel {
     private InfoPanel infoPanel;
+    private MemberPanel memberPanel;
 
     public RightPanel(InfoManager infoManager) {
         setLayout(new BorderLayout());
@@ -13,7 +14,7 @@ public class RightPanel extends JPanel {
         setPreferredSize(new Dimension(250, 0)); // 오른쪽 패널의 너비 설정
 
         // MemberPanel을 추가
-        MemberPanel memberPanel = new MemberPanel();
+        this.memberPanel = new MemberPanel();
         add(memberPanel, BorderLayout.NORTH);
 
 
@@ -25,5 +26,8 @@ public class RightPanel extends JPanel {
 
     public void updateInfoPanel(boolean isChannel1) {
         infoPanel.updateInfo(isChannel1 ? "channel1" : "channel2");
+    }
+    public void loadMemberPanel(String profileUrl,String name){
+        memberPanel.addMemberLabel(profileUrl,name);
     }
 }

@@ -28,11 +28,7 @@ public class MemberPanel extends JPanel {
         add(memberScrollPane, BorderLayout.CENTER);
     }
 
-    // 멤버 목록 업데이트 메서드
-//    public void updateMembers(List<String> members) {
-//        memberListModel.clear();
-//        for (String member : members) {
-//            memberListModel.addElement(member);
-//        }
-//    }
+    public void addMemberLabel(String profileUrl,String name){
+        System.out.println("memberLabel"+profileUrl+name);
+    }
 }

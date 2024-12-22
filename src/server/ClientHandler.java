@@ -72,8 +72,30 @@ public class ClientHandler implements Runnable {
                 break;
             case "/chatload":
                 chatLoad(argument);
+            case "/memberLoad":
+                memberLoad();
             default:
                 dout.writeUTF("Unknown command: " + command);
+        }
+    }
+
+    public void memberLoad(){
+        String filePath = "user.txt"; // user.txt 파일 경로
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // user.txt에서 각 줄을 읽어와 ID를 추출
+                String[] parts = line.split(","); // 쉼표(,)로 분리
+                String id = parts[1]; // 첫 번째 요소가 ID라고 가정
+
+                // ID로 프로필 URL과 이름 가져오기
+                String profileUrl = loggedUser.getProfileUrl();
+                String name = loggedUser.getName();
+                dout.writeUTF("/memberLoad "+profileUrl+","+name);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -135,7 +157,18 @@ public class ClientHandler implements Runnable {
         String message = loggedUser.getProfileUrl()+","+loggedUser.getName()+","+argument;
         String chatMessage = message.substring(9).trim();
         String[] parts = chatMessage.split(",");
+        String timestamp = parts[2];
+        String greeting = parts[3];
         String filename = parts.length > 4 ? parts[4] : null;
+        String savedMessage = loggedUser.getId()+","+timestamp+","+greeting+","+filename;
+        // 파일에 savedMessage 저장
+        String filePath = System.getProperty("user.dir") + "/resources/channel/" + currentChannel + "/chats.txt";// 저장할 파일 경로
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath, true))) {
+            writer.write(savedMessage);
+            writer.newLine(); // 메시지 뒤에 줄 바꿈 추가
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         if(filename!=null){
             FileServer.uploadFileToServer(din,currentChannel,filename);
         }
@@ -171,8 +204,9 @@ public class ClientHandler implements Runnable {
 
     private void handleLogin(String argument) throws IOException {
         String[] credentials = argument.split("/", 2);
+        String id;
         if (credentials.length == 2) {
-            String id = credentials[0].trim();
+            id = credentials[0].trim();
             String password = credentials[1].trim();
 
             if (UserManager.authenticateUser(id, password)) {
@@ -184,6 +218,7 @@ public class ClientHandler implements Runnable {
         } else {
             dout.writeUTF("Login Failed: Incorrect command format");
         }
+        dout.writeUTF("/online "+this.loggedUser.getProfileUrl()+","+this.loggedUser.getName());
     }
 
     private void handleSignup(String argument) throws IOException {

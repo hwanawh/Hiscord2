@@ -29,6 +29,10 @@ public class ChatPanel extends JPanel {
         initializeInputPanel(dout);
     }
 
+    public void cleanup(){ //chatArea zero
+        chatArea.setText("");
+    }
+
     private void initializeEmojiMap() {
         emojiMap = new HashMap<>();
         emojiMap.put(":emoji1:", "resources/emoji/emoticon.png");

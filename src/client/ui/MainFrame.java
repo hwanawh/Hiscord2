@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-
+        dout.writeUTF("/memberLoad ");
         // TopPanel을 사용하여 버튼 추가
         TopPanel topPanel = new TopPanel(loggedUser, dout, this);  // TopPanel 생성
         add(topPanel, BorderLayout.NORTH);  // 상단에 배치
@@ -75,6 +75,7 @@ public class MainFrame extends JFrame {
                         case "/join":
                             String newChannel = message.substring(6).trim();
                             dout.writeUTF("/chatload "+newChannel);
+                            chatPanel.cleanup();
                             //chatPanel.loadChat(newChannel);
                             System.out.println("chat load");
                             rightPanel.updateInfoPanel(newChannel.equals("channel1")); // 채널 변경에 따라 RightPanel 업데이트
@@ -136,8 +137,12 @@ public class MainFrame extends JFrame {
                             //chatPanel.appendImage(din);
                             break;
 
-                        case "/chatload":
-
+                        case "/memberLoad":
+                            String member = message.substring(9).trim();
+                            String[] part = member.split(",");
+                            profileUrl = System.getProperty("user.dir")+part[0];
+                            String name = part[1];
+                            rightPanel.loadMemberPanel(profileUrl,name);
                             break;
                         default:
                             // 기본 메시지 처리
