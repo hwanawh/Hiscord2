@@ -172,56 +172,73 @@ public class LoginFrame extends JFrame {
         String password = new String(passwordField.getPassword());
 
         if (!id.isEmpty() && !password.isEmpty()) {
-            // 로그인 요청 메시지 서버로 전송
-            dout.writeUTF("/login " + id + "/" + password);
+            try {
+                // 로그인 요청 메시지 서버로 전송
+                dout.writeUTF("/login " + id + "/" + password);
 
-            // 서버 응답을 기다리는 스레드 생성
-            Thread responseThread = new Thread(() -> {
-                try {
-                    // 서버의 응답을 기다림
-                    String authentication = din.readUTF();
-                    System.out.println("auth: " + authentication); // 응답 확인 로그
+                // 서버 응답을 기다리는 스레드 생성
+                Thread responseThread = new Thread(() -> {
+                    try {
+                        // 서버의 응답을 기다림
+                        String authentication = din.readUTF();
+                        System.out.println("auth: " + authentication); // 응답 확인 로그
 
-                    // 응답 처리 (Event Dispatch Thread에서 실행)
-                    SwingUtilities.invokeLater(() -> {
-                        if (authentication != null && !authentication.startsWith("Login Failed")) {
-                            try {
-                                new MainFrame(id, din, dout); // InfoManager 제거
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
+                        // 응답 처리 (Event Dispatch Thread에서 실행)
+                        SwingUtilities.invokeLater(() -> {
+                            if (authentication != null && !authentication.startsWith("Login Failed")) {
+                                try {
+                                    new MainFrame(id, din, dout); // InfoManager 제거
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                    JOptionPane.showMessageDialog(
+                                            LoginFrame.this,
+                                            "메인 화면을 여는 중 오류가 발생했습니다.",
+                                            "Error",
+                                            JOptionPane.ERROR_MESSAGE
+                                    );
+                                }
+                                dispose();
+                            } else {
+                                JOptionPane.showMessageDialog(
+                                        LoginFrame.this,
+                                        "아이디 또는 비밀번호가 잘못되었습니다.",
+                                        "로그인 실패",
+                                        JOptionPane.ERROR_MESSAGE
+                                );
                             }
-                            dispose();
-                        } else {
+                        });
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        SwingUtilities.invokeLater(() -> {
                             JOptionPane.showMessageDialog(
                                     LoginFrame.this,
-                                    "아이디 또는 비밀번호가 잘못되었습니다.",
-                                    "로그인 실패",
+                                    "서버와의 연결에 문제가 발생했습니다. 다시 시도해주세요.",
+                                    "Error",
                                     JOptionPane.ERROR_MESSAGE
                             );
-                        }
-                    });
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    SwingUtilities.invokeLater(() -> {
-                        JOptionPane.showMessageDialog(
-                                LoginFrame.this,
-                                "서버와의 연결에 문제가 발생했습니다.",
-                                "Error",
-                                JOptionPane.ERROR_MESSAGE
-                        );
-                    });
-                }
-            });
+                        });
+                    }
+                });
 
-            responseThread.start();
+                responseThread.start();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                JOptionPane.showMessageDialog(
+                        this,
+                        "서버로 요청을 보내는 중 문제가 발생했습니다. 다시 시도해주세요.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+            }
         } else {
             JOptionPane.showMessageDialog(
-                    LoginFrame.this,
+                    this,
                     "모든 필드를 입력하세요!",
                     "Error",
                     JOptionPane.ERROR_MESSAGE
             );
         }
     }
+
 
 }

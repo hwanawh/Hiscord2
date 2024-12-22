@@ -207,7 +207,7 @@ public class ClientHandler implements Runnable {
             String password = credentials[1].trim();
 
             if (UserManager.authenticateUser(id, password)) {
-                this.loggedUser = UserManager.getUserById(id);
+                loggedUser = UserManager.getUserById(id);
                 dout.writeUTF(loggedUser != null ? loggedUser.getName() : "없는 아이디입니다");
             } else {
                 dout.writeUTF("Login Failed: Invalid credentials");
@@ -215,7 +215,6 @@ public class ClientHandler implements Runnable {
         } else {
             dout.writeUTF("Login Failed: Incorrect command format");
         }
-        dout.writeUTF("/online "+this.loggedUser.getProfileUrl()+","+this.loggedUser.getName());
     }
 
     private void handleSignup(String argument) throws IOException {

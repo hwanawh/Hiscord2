@@ -129,7 +129,7 @@ public class SignUpFrame extends JFrame {
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-            profileUrlField.setText(selectedFile.getAbsolutePath());
+            profileUrlField.setText(selectedFile.getName());
         }
     }
 
@@ -138,11 +138,19 @@ public class SignUpFrame extends JFrame {
             String name = nameField.getText();
             String userId = useridField.getText();
             String password = new String(passwordField.getPassword());
-            String profileUrl = profileUrlField.getText();
+            String profileUrlInput = profileUrlField.getText();
+            String profileUrl;
 
-            if (name.isEmpty() || userId.isEmpty() || password.isEmpty() || profileUrl.isEmpty()) {
+            if (name.isEmpty() || userId.isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "모든 항목을 채워주세요.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
+            }
+
+            // 프로필 URL 설정: 빈칸일 경우 기본값 사용
+            if (profileUrlInput.isEmpty()) {
+                profileUrl ="/client_resources/default.png";
+            } else {
+                profileUrl ="/client_resources/" + profileUrlInput;
             }
 
             // 서버로 회원가입 데이터 전송
@@ -168,16 +176,7 @@ public class SignUpFrame extends JFrame {
                 ex.printStackTrace();
                 JOptionPane.showMessageDialog(this, "서버와의 연결에 문제가 발생했습니다.", "Error", JOptionPane.ERROR_MESSAGE);
             }
-
         };
     }
 
-    private void saveUserInfo(String name, String userid, String password, String profileUrl) {
-        // Implement logic to save user information and profile URL
-    }
-
-    private boolean isUserIdDuplicated(String userid) {
-        // Implement logic to check if the user ID is duplicated
-        return false;
-    }
 }
