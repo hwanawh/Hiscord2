@@ -66,6 +66,9 @@ public class ClientHandler implements Runnable {
             case "/addchannel":
                 handleAddChannel(argument);
                 break;
+            case "/leave":
+                handleLeave(argument);
+                break;
             case "/updateNotice":
                 handleUpdateNotice(argument);
                 break;
@@ -147,6 +150,21 @@ public class ClientHandler implements Runnable {
             System.out.println("Formatted message: " + formattedMessage);
             sendMessage(formattedMessage);
         }
+    }
+
+    // 디렉토리와 그 안의 파일을 재귀적으로 삭제하는 메서드
+    private void deleteDirectory(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file); // 재귀적으로 하위 디렉토리 삭제
+                } else {
+                    file.delete(); // 파일 삭제
+                }
+            }
+        }
+        dir.delete(); // 최종적으로 빈 디렉토리 삭제
     }
 
 
@@ -281,6 +299,30 @@ public class ClientHandler implements Runnable {
             dout.writeUTF("채널 이름을 입력하세요.");
         }
     }
+    private void handleLeave(String channelName) throws IOException {
+        if (currentChannel.equals(channelName)) {
+            ChannelManager.leaveChannel(currentChannel, this);
+            dout.writeUTF("/leave " + channelName);
+
+            // 채널 디렉토리 삭제
+            String projectDir = System.getProperty("user.dir");
+            String path = projectDir + "/resources/channel/" + channelName;
+            File channelDir = new File(path);
+
+            if (channelDir.exists()) {
+                deleteDirectory(channelDir);
+                dout.writeUTF("채널 '" + channelName + "'이 삭제되었습니다.");
+            } else {
+                dout.writeUTF("채널 '" + channelName + "'이 존재하지 않습니다.");
+            }
+
+            currentChannel = null; // 채널을 나갔으므로 현재 채널을 null로 설정
+        } else {
+            dout.writeUTF("현재 채널과 일치하지 않는 채널입니다.");
+        }
+    }
+
+
 
     private void handleUpdateNotice(String newNotice) throws IOException {
         newNotice = newNotice.trim();

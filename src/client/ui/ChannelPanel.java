@@ -5,7 +5,8 @@ import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChannelPanel extends JPanel {
     private DefaultListModel<String> channelListModel;
@@ -64,6 +65,14 @@ public class ChannelPanel extends JPanel {
             }
         });
 
+        // 우클릭 메뉴 추가
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem leaveChannelItem = new JMenuItem("채널 나가기");
+        leaveChannelItem.addActionListener(e -> leaveChannel(dout));
+        popupMenu.add(leaveChannelItem);
+
+        channelList.setComponentPopupMenu(popupMenu);
+
         JScrollPane channelScrollPane = new JScrollPane(channelList);
         channelScrollPane.setBorder(BorderFactory.createEmptyBorder());
         channelScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
@@ -73,39 +82,81 @@ public class ChannelPanel extends JPanel {
         return channelScrollPane;
     }
 
-    private JPanel createAddChannelPanel(DataOutputStream dout) {
-        JPanel addChannelPanel = new JPanel(new BorderLayout());
-        addChannelPanel.setBackground(new Color(47, 49, 54));
+    private void leaveChannel(DataOutputStream dout) {
+        String selectedChannel = channelList.getSelectedValue();
+        if (selectedChannel != null) {
+            // 확인 대화상자 띄우기
+            int response = JOptionPane.showConfirmDialog(
+                    this,
+                    "정말 채널을 나가시겠습니까?",
+                    "채널 나가기",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
 
-        JTextField newChannelField = new JTextField();
-        newChannelField.setBackground(new Color(64, 68, 75));
-        newChannelField.setForeground(new Color(220, 221, 222));
-        newChannelField.setCaretColor(new Color(220, 221, 222));
-        addChannelPanel.add(newChannelField, BorderLayout.CENTER);
-
-        JButton addChannelButton = new JButton("+");
-        addChannelButton.setBackground(new Color(88, 101, 242));
-        addChannelButton.setForeground(Color.WHITE);
-        addChannelButton.setFocusPainted(false);
-        addChannelPanel.add(addChannelButton, BorderLayout.EAST);
-
-        // 새 채널 추가 이벤트
-        addChannelButton.addActionListener(e -> {
-            String newChannel = newChannelField.getText().trim();
-            if (!newChannel.isEmpty() && !channelListModel.contains(newChannel)) {
+            // 사용자가 '예'를 클릭한 경우
+            if (response == JOptionPane.YES_OPTION) {
                 try {
-                    dout.writeUTF("/addchannel " + newChannel);
-                    // 채널 리스트 갱신
-                    channelListModel.addElement(newChannel);
+                    // 채널 나가기 명령 서버로 전송
+                    dout.writeUTF("/leave " + selectedChannel);
+                    // 채널 목록에서 삭제
+                    channelListModel.removeElement(selectedChannel);
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);
                 }
-                newChannelField.setText("");
+            }
+            // '아니오'를 클릭하면 아무 작업도 하지 않음
+        }
+    }
+
+
+
+    private JPanel createAddChannelPanel(DataOutputStream dout) {
+        JPanel addChannelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        addChannelPanel.setBackground(new Color(47, 49, 54));
+
+        // 동그라미 모양의 "+" 버튼 패널
+        JPanel circleButtonPanel = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.setColor(new Color(88, 101, 242)); // 파란색 동그라미
+                g.fillOval(0, 0, getWidth(), getHeight()); // 동그라미 그리기
+            }
+        };
+        circleButtonPanel.setPreferredSize(new Dimension(60, 60)); // 동그라미 크기 조정
+        circleButtonPanel.setLayout(new BorderLayout());
+        circleButtonPanel.setOpaque(false);
+
+        // "+" 버튼 라벨 (크고 굵게)
+        JLabel addChannelLabel = new JLabel("+", SwingConstants.CENTER);
+        addChannelLabel.setForeground(Color.WHITE);
+        addChannelLabel.setFont(new Font("맑은 고딕", Font.BOLD, 30)); // 크고 굵은 폰트
+
+        circleButtonPanel.add(addChannelLabel, BorderLayout.CENTER);
+
+        // "+" 버튼 클릭 시 새 채널 추가
+        circleButtonPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                JTextField newChannelField = new JTextField();
+                String newChannel = JOptionPane.showInputDialog("추가할 채널 이름을 입력하세요:");
+                if (newChannel != null && !newChannel.trim().isEmpty() && !channelListModel.contains(newChannel)) {
+                    try {
+                        dout.writeUTF("/addchannel " + newChannel);
+                        channelListModel.addElement(newChannel);
+                    } catch (IOException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
         });
 
+        addChannelPanel.add(circleButtonPanel);
+
         return addChannelPanel;
     }
+
 
     private void addChannels() {
         String projectDir = System.getProperty("user.dir");
