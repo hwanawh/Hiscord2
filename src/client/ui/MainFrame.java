@@ -142,6 +142,9 @@ public class MainFrame extends JFrame {
                             String name = part[1];
                             rightPanel.loadMemberPanel(profileUrl,name); //appendMessage
                             break;
+                        case "/info":
+
+
                         default:
                             System.out.println("default message");
                             break;

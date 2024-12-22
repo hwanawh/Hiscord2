@@ -27,9 +27,18 @@ public class ChatPanel extends JPanel {
         initializeInputPanel(dout);
     }
 
-    public void cleanup() { // chatArea zero
+    public void cleanup() {
+        // 채팅 영역 텍스트 제거
         chatArea.setText("");
+
+        // 채팅 메시지 컨테이너 초기화
+        JScrollPane scrollPane = (JScrollPane) this.getComponent(0);
+        JPanel chatContainer = (JPanel) scrollPane.getViewport().getView();
+        chatContainer.removeAll(); // 모든 메시지 제거
+        chatContainer.revalidate(); // 레이아웃 새로 고침
+        chatContainer.repaint();   // 화면 다시 그리기
     }
+
 
     private void initializeEmojiMap() {
         emojiMap = new HashMap<>();

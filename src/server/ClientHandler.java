@@ -58,6 +58,9 @@ public class ClientHandler implements Runnable {
             case "/signup":
                 handleSignup(argument);
                 break;
+            case "/info":
+                handleInfo(argument);
+
             case "/updateUserInfo":
                 handleUpdateUserInfo(argument);  // 새 명령어 처리
                 break;
@@ -77,6 +80,10 @@ public class ClientHandler implements Runnable {
             default:
                 dout.writeUTF("Unknown command: " + command);
         }
+    }
+
+    public void handleInfo(String argument){//수정된 공지사항을 클라이언트에게 전부 배포;
+
     }
 
     public void memberLoad() throws IOException {
