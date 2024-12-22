@@ -173,7 +173,7 @@ public class ChatPanel extends JPanel {
     }
 
 
-    public void appendMessage(String profileUrl, String senderName, String timestamp, String greeting, File imageFile) {
+    protected void appendMessage(String profileUrl, String senderName, String timestamp, String greeting, File imageFile) {
         try {
             JPanel messagePanel = new JPanel();
             messagePanel.setLayout(new BorderLayout());
@@ -216,8 +216,17 @@ public class ChatPanel extends JPanel {
                 try {
                     BufferedImage image = ImageIO.read(imageFile);
                     if (image != null) {
-                        JLabel imageLabel = new JLabel(new ImageIcon(image.getScaledInstance(200, 150, Image.SCALE_SMOOTH)));
+                        ImageIcon imageIcon = new ImageIcon(image.getScaledInstance(200, 150, Image.SCALE_SMOOTH));
+                        JLabel imageLabel = new JLabel(imageIcon);
                         imageLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+
+                        // 이미지 클릭 시 원본 이미지를 표시하는 동작 추가
+                        imageLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+                            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                                showOriginalImage(imageFile); // 클릭 시 원본 이미지를 보여주는 메서드 호출
+                            }
+                        });
+
                         messagePanel.add(imageLabel, BorderLayout.CENTER);
                     }
                 } catch (IOException e) {
@@ -246,6 +255,31 @@ public class ChatPanel extends JPanel {
             chatContainer.revalidate();
             chatContainer.repaint();
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    private void showOriginalImage(File imageFile) {
+        // 원본 이미지를 보여주는 새로운 JDialog를 띄운다.
+        JDialog imageDialog = new JDialog();
+        imageDialog.setTitle("원본 이미지");
+
+        try {
+            BufferedImage originalImage = ImageIO.read(imageFile);
+            if (originalImage != null) {
+                // 화면 크기에 맞게 이미지 크기 조정
+                int dialogWidth = 400;  // 원하는 최대 너비
+                int dialogHeight = 400; // 원하는 최대 높이
+
+                // 이미지 크기 조정
+                Image scaledImage = originalImage.getScaledInstance(dialogWidth, dialogHeight, Image.SCALE_SMOOTH);
+
+                JLabel imageLabel = new JLabel(new ImageIcon(scaledImage));
+                imageDialog.getContentPane().add(imageLabel);
+                imageDialog.pack();
+                imageDialog.setLocationRelativeTo(this);  // 이 화면을 기준으로 위치 설정
+                imageDialog.setVisible(true);
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
