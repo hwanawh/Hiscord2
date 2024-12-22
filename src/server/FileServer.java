@@ -6,23 +6,6 @@ import java.net.Socket;
 public class FileServer {
     private static final String FILE_DIRECTORY = System.getProperty("user.dir")+"/resources/channel/";  // 파일을 저장할 디렉토리
 
-
-    public static void handleFileUpload(DataInputStream din, DataOutputStream dout, String message, String channelName, String fileName) throws IOException {
-        try {
-            // 1. 파일 업로드 (서버에 파일 저장)
-            uploadFileToServer(din, channelName, fileName);
-
-            // 2. 업로드된 파일을 클라이언트에게 배포
-            File file = new File(FILE_DIRECTORY + channelName + "/channel_files", fileName);
-            distributeFile(dout, message, file);
-
-        } catch (IOException e) {
-            System.err.println("파일 처리 실패: " + e.getMessage());
-            dout.writeUTF("UPLOAD FAILED: Error during file upload.");
-            e.printStackTrace(); // 추가적인 예외 추적
-        }
-    }
-
     public static void uploadFileToServer(DataInputStream din, String channelName, String fileName) throws IOException {
         // 파일 크기 받기
         long fileSize = din.readLong();
@@ -71,7 +54,7 @@ public class FileServer {
     public static void distributeFile(DataOutputStream dout, String message, File file) throws IOException {
         // 업로드 완료 후 파일 전송
         try (FileInputStream fileInputStream = new FileInputStream(file)) {
-            dout.writeUTF("/message " + message);
+            dout.writeUTF(message);
             System.out.println("클라이언트에게 메시지 전송: " + message);
 
             dout.writeLong(file.length());

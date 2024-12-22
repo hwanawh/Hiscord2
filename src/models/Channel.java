@@ -34,6 +34,12 @@ public class Channel {
         }
     }
 
+    public void broadcastMember(String message) throws IOException{
+        for (ClientHandler client : clients) {
+            client.sendMember(message);
+        }
+    }
+
 
 
     public List<ClientHandler> getClients() {

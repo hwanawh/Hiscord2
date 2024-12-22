@@ -178,6 +178,7 @@ public class ChatPanel extends JPanel {
             headerPanel.setBackground(new Color(64, 68, 75));
 
             ImageIcon profileIcon = new ImageIcon(profileUrl);
+            System.out.println("이미지 준비중!"+profileUrl);
             Image scaledProfileImage = profileIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
             JLabel profileLabel = new JLabel(new ImageIcon(scaledProfileImage));
             headerPanel.add(profileLabel);

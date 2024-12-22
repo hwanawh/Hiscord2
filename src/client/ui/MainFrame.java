@@ -24,7 +24,7 @@ public class MainFrame extends JFrame {
         setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
-        dout.writeUTF("/memberLoad ");
+
         // TopPanel을 사용하여 버튼 추가
         TopPanel topPanel = new TopPanel(loggedUser, dout, this);  // TopPanel 생성
         add(topPanel, BorderLayout.NORTH);  // 상단에 배치
@@ -69,11 +69,13 @@ public class MainFrame extends JFrame {
             try {
                 String message;
                 while ((message = din.readUTF()) != null) {
-                    String command = message.contains(" ") ? message.substring(0, message.indexOf(" ")) : message;
+                    String command = message.split(" ", 2)[0].trim();
+                    String argument = message.substring(command.length()).trim();
 
                     switch (command) {
                         case "/join":
-                            String newChannel = message.substring(6).trim();
+
+                            String newChannel = argument;
                             dout.writeUTF("/chatload "+newChannel);
                             chatPanel.cleanup();
                             //chatPanel.loadChat(newChannel);
@@ -83,7 +85,7 @@ public class MainFrame extends JFrame {
 
                         case "/message":
                             // 메시지 처리
-                            String chatMessage = message.substring(9).trim();
+                            String chatMessage = argument;
                             String[] parts = chatMessage.split(",");
 
                             // 변수 할당
@@ -129,25 +131,18 @@ public class MainFrame extends JFrame {
                                 chatPanel.appendMessage(profileUrl,senderName,timestamp,greeting,null);
                             }
 
-                            System.out.println(chatMessage);
+                            System.out.println(argument);
                             System.out.println("message");
                             break;
 
-                        case "/image":
-                            //chatPanel.appendImage(din);
-                            break;
-
                         case "/memberLoad":
-                            String member = message.substring(9).trim();
+                            String member = argument;
                             String[] part = member.split(",");
                             profileUrl = System.getProperty("user.dir")+part[0];
                             String name = part[1];
-                            rightPanel.loadMemberPanel(profileUrl,name);
+                            rightPanel.loadMemberPanel(profileUrl,name); //appendMessage
                             break;
                         default:
-                            // 기본 메시지 처리
-                            //chatPanel.appendMessage(message);
-                            System.out.println("message"+message);
                             System.out.println("default message");
                             break;
                     }

@@ -79,24 +79,15 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void memberLoad(){
-        String filePath = "user.txt"; // user.txt 파일 경로
+    public void memberLoad() throws IOException {
+        String profileUrl = loggedUser.getProfileUrl();
+        String name = loggedUser.getName();
+        String message = profileUrl+","+name;
+        ChannelManager.broadcastMember(currentChannel,message);
+    }
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // user.txt에서 각 줄을 읽어와 ID를 추출
-                String[] parts = line.split(","); // 쉼표(,)로 분리
-                String id = parts[1]; // 첫 번째 요소가 ID라고 가정
-
-                // ID로 프로필 URL과 이름 가져오기
-                String profileUrl = loggedUser.getProfileUrl();
-                String name = loggedUser.getName();
-                dout.writeUTF("/memberLoad "+profileUrl+","+name);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void sendMember(String message) throws IOException {
+        dout.writeUTF("/memberLoad "+message);
     }
 
     public void chatLoad(String channelName) throws IOException {
@@ -172,7 +163,7 @@ public class ClientHandler implements Runnable {
         if(filename!=null){
             FileServer.uploadFileToServer(din,currentChannel,filename);
         }
-
+        message = "/message "+message;
         //message example hiscord.png,황준선,12:06,안녕하세요,filename(nullable)
         ChannelManager.broadcast(currentChannel,message);
         //broadcast;
@@ -191,8 +182,8 @@ public class ClientHandler implements Runnable {
             System.out.println(message);
             return;
         }
-        System.out.println(message);
-        dout.writeUTF("/message " + message);
+        System.out.println("서버가 클라이언트에게 전송"+message);
+        dout.writeUTF(message);
     }
 
     private void handleJoin(String newChannel) throws IOException {
