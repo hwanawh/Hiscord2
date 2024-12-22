@@ -4,7 +4,7 @@ import client.FileClient;
 import models.User;
 import models.UserManager;
 
-
+import javax.swing.border.EmptyBorder;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
@@ -21,7 +21,7 @@ public class MainFrame extends JFrame {
         this.dout = dout;
         loggedUser = UserManager.getUserById(id);
         setTitle("Chat - " + loggedUser.getName());
-        setSize(1000, 800);
+        setSize(900, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -39,6 +39,7 @@ public class MainFrame extends JFrame {
 
         // ChatPanel 생성
         ChatPanel chatPanel = new ChatPanel(dout);
+        chatPanel.setBorder(new EmptyBorder(0, 50, 0, 10));
         add(chatPanel, BorderLayout.CENTER);
 
         // MessageReaderThread 실행

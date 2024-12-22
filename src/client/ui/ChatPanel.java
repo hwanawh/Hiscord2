@@ -182,12 +182,11 @@ public class ChatPanel extends JPanel {
             messagePanel.setMaximumSize(new Dimension(400, 150));
             messagePanel.setBackground(new Color(64, 68, 75));
 
-
+            // 헤더 패널 설정 (프로필 이미지 + 이름)
             JPanel headerPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
             headerPanel.setBackground(new Color(64, 68, 75));
 
             ImageIcon profileIcon = new ImageIcon(profileUrl);
-            System.out.println("이미지 준비중!"+profileUrl);
             Image scaledProfileImage = profileIcon.getImage().getScaledInstance(40, 40, Image.SCALE_SMOOTH);
             JLabel profileLabel = new JLabel(new ImageIcon(scaledProfileImage));
             headerPanel.add(profileLabel);
@@ -199,18 +198,17 @@ public class ChatPanel extends JPanel {
 
             messagePanel.add(headerPanel, BorderLayout.NORTH);
 
-            // 타임스탬프
-            JLabel timestampLabel = new JLabel(timestamp);
-            timestampLabel.setForeground(Color.LIGHT_GRAY);
-            timestampLabel.setFont(new Font("Malgun Gothic", Font.ITALIC, 12));
-            messagePanel.add(timestampLabel, BorderLayout.SOUTH);
-
-            // 텍스트 메시지 추가
+            // 텍스트 메시지 추가 (JTextArea로 변경)
             if (greeting != null && !greeting.isEmpty()) {
-                JLabel messageLabel = new JLabel(greeting);
-                messageLabel.setForeground(Color.WHITE);
-                messageLabel.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
-                messagePanel.add(messageLabel, BorderLayout.CENTER);
+                JTextArea messageArea = new JTextArea(greeting);
+                messageArea.setLineWrap(true); // 자동 줄바꿈
+                messageArea.setWrapStyleWord(true); // 단어 단위로 줄바꿈
+                messageArea.setEditable(false);
+                messageArea.setBackground(new Color(64, 68, 75));
+                messageArea.setForeground(Color.WHITE);
+                messageArea.setFont(new Font("Malgun Gothic", Font.PLAIN, 14));
+                messageArea.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
+                messagePanel.add(messageArea, BorderLayout.CENTER);
             }
 
             // 이미지 파일 추가
@@ -227,6 +225,15 @@ public class ChatPanel extends JPanel {
                 }
             }
 
+            // 타임스탬프 배치
+            JPanel timestampPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            timestampPanel.setBackground(new Color(64, 68, 75));
+            JLabel timestampLabel = new JLabel(timestamp);
+            timestampLabel.setForeground(Color.LIGHT_GRAY);
+            timestampLabel.setFont(new Font("Malgun Gothic", Font.ITALIC, 12));
+            timestampPanel.add(timestampLabel);
+            messagePanel.add(timestampPanel, BorderLayout.SOUTH);
+
             // 채팅창에 추가
             JScrollPane scrollPane = (JScrollPane) this.getComponent(0);
             JPanel chatContainer = (JPanel) scrollPane.getViewport().getView();
@@ -236,13 +243,13 @@ public class ChatPanel extends JPanel {
             chatContainer.add(messagePanel);
             chatContainer.add(Box.createVerticalStrut(10));
 
-
             chatContainer.revalidate();
             chatContainer.repaint();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
 
 
