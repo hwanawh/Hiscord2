@@ -3,7 +3,7 @@ package client.ui;
 import client.FileClient;
 import models.User;
 import models.UserManager;
-import server.InfoManager;  // InfoManager를 임포트
+
 
 import javax.swing.*;
 import java.awt.*;
@@ -17,7 +17,7 @@ public class MainFrame extends JFrame {
     private DataOutputStream dout;
 
 
-    public MainFrame(String id, DataInputStream din, DataOutputStream dout, InfoManager infoManager) throws IOException {
+    public MainFrame(String id, DataInputStream din, DataOutputStream dout) throws IOException {
         this.dout = dout;
         loggedUser = UserManager.getUserById(id);
         setTitle("Chat - " + loggedUser.getName());
@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
         add(topPanel, BorderLayout.NORTH);  // 상단에 배치
 
         // RightPanel 생성
-        RightPanel rightPanel = new RightPanel(infoManager);
+        RightPanel rightPanel = new RightPanel();
         add(rightPanel, BorderLayout.EAST);
 
         // ChannelPanel 생성
