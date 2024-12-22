@@ -160,7 +160,7 @@ public class LoginFrame extends JFrame {
         signUpButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //new SignUpFrame(din,dout);
+                new SignUpFrame(din,dout);
                 dispose();
             }
         });

@@ -20,7 +20,6 @@ public class ClientHandler implements Runnable {
     public ClientHandler(DataInputStream din, DataOutputStream dout) throws IOException {
         this.din = din;
         this.dout = dout;
-        handleJoin("channel1");
     }
 
     @Override
@@ -229,6 +228,7 @@ public class ClientHandler implements Runnable {
 
             if (UserManager.addUser(name, id, password, profileUrl)) {
                 dout.writeUTF("회원가입 성공");
+                loggedUser=UserManager.getUserById(id);
             } else {
                 dout.writeUTF("이미 사용중인 아이디입니다");
             }

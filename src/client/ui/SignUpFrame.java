@@ -159,7 +159,7 @@ public class SignUpFrame extends JFrame {
                     if (response.startsWith("회원가입 성공")) {
                         JOptionPane.showMessageDialog(this, "회원 가입 성공!", "Success", JOptionPane.INFORMATION_MESSAGE);
                         dispose();
-                        //new MainFrame(name, din, dout);
+                        new MainFrame(userId, din, dout);
                     } else {
                         JOptionPane.showMessageDialog(this, response.replace("Signup Failed: ", ""), "Error", JOptionPane.ERROR_MESSAGE);
                     }

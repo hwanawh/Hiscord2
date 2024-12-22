@@ -3,3 +3,5 @@ Hwnasu,5678,1234,\client_resources\default.png
 Tommy,123,123,\client_resources\yuta.png
 babo,222,222,\client_resources\default.png
 123,ff,ff,\client_resources\default.png
+Jusun,1235,123,C:\Users\doror\Documents\yuta.png
+dd,a,a,C:\Users\doror\Documents\yuta.png
