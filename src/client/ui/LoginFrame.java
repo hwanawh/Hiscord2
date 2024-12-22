@@ -10,7 +10,7 @@ import java.net.Socket;
 import server.InfoManager;
 
 public class LoginFrame extends JFrame {
-    private JTextField usernameField, idField;
+    private JTextField idField;
     private JPasswordField passwordField;
     private DataInputStream din;
     private DataOutputStream dout;
@@ -64,33 +64,11 @@ public class LoginFrame extends JFrame {
         gbc.insets = new Insets(15, 20, 15, 20);  // 여백 조정
         gbc.anchor = GridBagConstraints.CENTER;
 
-        addUsernameField(centerPanel, gbc, textColor);
+
         addIdField(centerPanel, gbc, textColor);
         addPasswordField(centerPanel, gbc, textColor);
         addLoginButton(centerPanel, gbc, buttonColor);
         addSignUpButton(centerPanel, gbc, signUpButtonColor);
-    }
-
-    // 이름 입력 필드 추가 메서드
-    private void addUsernameField(JPanel centerPanel, GridBagConstraints gbc, Color textColor) {
-        JLabel usernameLabel = new JLabel("이름: ");
-        usernameLabel.setForeground(textColor);
-        usernameLabel.setFont(new Font("맑은 고딕", Font.BOLD, 22));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        centerPanel.add(usernameLabel, gbc);
-
-        usernameField = new JTextField();
-        usernameField.setBackground(new Color(64, 68, 75));
-        usernameField.setForeground(textColor);
-        usernameField.setCaretColor(textColor);
-        usernameField.setFont(new Font("맑은 고딕", Font.PLAIN, 18));
-        usernameField.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
-        gbc.gridx = 1;
-        gbc.gridy = 0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        usernameField.setPreferredSize(new Dimension(300, 40));
-        centerPanel.add(usernameField, gbc);
     }
 
     // 아이디 입력 필드 추가 메서드
@@ -99,7 +77,7 @@ public class LoginFrame extends JFrame {
         idLabel.setForeground(textColor);
         idLabel.setFont(new Font("맑은 고딕", Font.BOLD, 22));
         gbc.gridx = 0;
-        gbc.gridy = 1;
+        gbc.gridy = 0;
         centerPanel.add(idLabel, gbc);
 
         idField = new JTextField();
@@ -109,7 +87,7 @@ public class LoginFrame extends JFrame {
         idField.setFont(new Font("맑은 고딕", Font.PLAIN, 18));
         idField.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         gbc.gridx = 1;
-        gbc.gridy = 1;
+        gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         idField.setPreferredSize(new Dimension(300, 40));
         centerPanel.add(idField, gbc);
@@ -121,7 +99,7 @@ public class LoginFrame extends JFrame {
         passwordLabel.setForeground(textColor);
         passwordLabel.setFont(new Font("맑은 고딕", Font.BOLD, 22));
         gbc.gridx = 0;
-        gbc.gridy = 2;
+        gbc.gridy = 1;
         centerPanel.add(passwordLabel, gbc);
 
         passwordField = new JPasswordField();
@@ -131,7 +109,7 @@ public class LoginFrame extends JFrame {
         passwordField.setFont(new Font("맑은 고딕", Font.PLAIN, 18));
         passwordField.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 1;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         passwordField.setPreferredSize(new Dimension(300, 40));
         centerPanel.add(passwordField, gbc);
@@ -147,7 +125,7 @@ public class LoginFrame extends JFrame {
         loginButton.setBorder(BorderFactory.createEmptyBorder());
         loginButton.setPreferredSize(new Dimension(250, 50));
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 2;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         centerPanel.add(loginButton, gbc);
@@ -174,7 +152,7 @@ public class LoginFrame extends JFrame {
         signUpButton.setBorder(BorderFactory.createEmptyBorder());
         signUpButton.setPreferredSize(new Dimension(250, 50));
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 3;
         gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         centerPanel.add(signUpButton, gbc);
@@ -190,11 +168,10 @@ public class LoginFrame extends JFrame {
 
     // 로그인 처리 메서드
     private void handleLogin() throws IOException {
-        String username = usernameField.getText();
         String id = idField.getText();
         String password = new String(passwordField.getPassword());
 
-        if (!username.isEmpty() && !id.isEmpty() && !password.isEmpty()) {
+        if (!id.isEmpty() && !password.isEmpty()) {
             // 로그인 요청 메시지 서버로 전송
             //out.println("/login " + id + "/" + password);
             dout.writeUTF("/login " + id + "/" + password);
