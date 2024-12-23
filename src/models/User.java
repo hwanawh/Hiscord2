@@ -9,7 +9,6 @@ public class User {
     private String id;
     private String password;
     private String profileUrl; // 프로필 사진
-    private String localImageUrl; //로컬 이미지 프로필 주소
 
     // profileUrl을 선택적 인자로 변경
     public User(String name, String id, String password) {
@@ -47,9 +46,6 @@ public class User {
         return profileUrl;
     }
 
-    public String getLocalImageUrl() {return localImageUrl;}
-
-    public void setLocalImageUrl(String localImageUrl) {this.localImageUrl = localImageUrl;}
     // 프로필 사진 URL을 변경할 때 사용하는 메서드
     public void setProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;

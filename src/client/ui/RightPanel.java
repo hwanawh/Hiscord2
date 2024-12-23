@@ -31,7 +31,6 @@ public class RightPanel extends JPanel {
     }
 
     public void loadInfoPanel(String content) {
-        //infoPanel.updateInfo(DataInputStream din , DataOutputStream dout);
         infoPanel.loadInfo(content);
     }
 

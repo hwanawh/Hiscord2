@@ -88,9 +88,9 @@ public class ClientHandler implements Runnable {
 
         System.out.println("Channel Name: " + channelName);
         System.out.println("Content: " + content);
-
         // .txt 파일로 저장 (덮어쓰는 방식)
         try (FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/resources/channel/" + channelName + "/info.txt")) {
+            writer.write(content);
             System.out.println("Content saved to " + channelName + "/info.txt");
         } catch (IOException e) {
             e.printStackTrace();
@@ -111,7 +111,7 @@ public class ClientHandler implements Runnable {
                 infoMessage.append(line).append("\n");
             }
         } catch (IOException e) {
-            infoMessage.append("파일을 읽는 중 오류가 발생했습니다.");
+            infoMessage.append("");
         }
 
         // UTF-8 텍스트 메시지 전송
