@@ -38,6 +38,10 @@ public class RightPanel extends JPanel {
         infoPanel.setCurrentChannel(currentChannel);
     }
 
+    public void deleteMember(String name){
+        memberPanel.deleteMemberLabel(name);
+    }
+
     public void loadMemberPanel(String profileUrl, String name) {
         memberPanel.addMemberLabel(profileUrl, name);
     }

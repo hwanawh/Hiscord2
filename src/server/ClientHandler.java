@@ -279,6 +279,8 @@ public class ClientHandler implements Runnable {
             String newName = updatedInfo[0].trim();
             String newPassword = updatedInfo[1].trim();
             String newProfileUrl = updatedInfo[2].trim();
+            String oldName = loggedUser.getName();
+            String oldProfileUrl = loggedUser.getProfileUrl();
 
 
             newProfileUrl = "\\" + newProfileUrl;
@@ -291,7 +293,7 @@ public class ClientHandler implements Runnable {
                 // 수정된 사용자 정보를 UserManager에 저장
                 UserManager.saveUsersToFile(System.getProperty("user.dir") + "/resources/user.txt");
 
-                dout.writeUTF("정보가 성공적으로 수정되었습니다.");
+                dout.writeUTF("/delete "+oldName);
             } else {
                 dout.writeUTF("유저 정보 수정 실패: 로그인된 사용자가 없습니다.");
             }

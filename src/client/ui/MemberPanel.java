@@ -2,7 +2,6 @@ package client.ui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,6 +65,19 @@ public class MemberPanel extends JPanel {
         } catch (Exception e) {
             System.err.println("프로필 URL 처리 중 오류: " + e.getMessage());
         }
+    }
+
+    public void deleteMemberLabel(String name) {
+        if (!memberMap.containsKey(name)) {
+            System.out.println("멤버를 찾을 수 없음: " + name);
+            return; // 삭제할 멤버가 없으면 무시
+        }
+
+        Member memberToRemove = memberMap.get(name);
+        memberListModel.removeElement(memberToRemove); // 리스트 모델에서 제거
+        memberMap.remove(name); // 맵에서 제거
+
+        System.out.println("멤버 삭제: " + name);
     }
 
     // 멤버 객체

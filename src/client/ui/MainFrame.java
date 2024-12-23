@@ -130,7 +130,9 @@ public class MainFrame extends JFrame {
                                 chatPanel.appendMessage(profileUrl,senderName,timestamp,greeting,null);
                             }
                             break;
-
+                        case "/delete":
+                            rightPanel.deleteMember(argument);
+                            break;
                         case "/memberLoad":
                             String member = argument;
                             String[] part = member.split(",");
