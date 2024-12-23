@@ -15,7 +15,6 @@ public class ClientHandler implements Runnable {
     private DataOutputStream dout;
     private String currentChannel;
     private User loggedUser;
-    private File testfile;
 
     public ClientHandler(DataInputStream din, DataOutputStream dout) throws IOException {
         this.din = din;
@@ -27,14 +26,10 @@ public class ClientHandler implements Runnable {
         try {
             String message;
             while ((message = din.readUTF()) != null) {
-                if (message.startsWith("/")) { //핸들 메시지
+                if (message.startsWith("/"))  //핸들 메시지
                     handleCommand(message);
-                } else if (message.startsWith(":")) { //File처리
-
-                } else {
-                    // 일반 메시지 처리
-                    //ChannelManager.broadcast(currentChannel, ": " + message);
-                }
+                else
+                    System.out.println("din unknown message : "+message);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -42,7 +37,7 @@ public class ClientHandler implements Runnable {
             cleanup();
         }
     }
-
+    //커맨드 관리
     private void handleCommand(String message) throws IOException {
         String command = message.split(" ", 2)[0].trim();
         String argument = message.substring(command.length()).trim();
@@ -82,9 +77,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
-
+    //공지 수정 및 저장
     public void handleInfo(String argument) throws IOException {
-        // 띄어쓰기로 분리
+
         String[] parts = argument.split(" ", 2);
 
         // 첫 번째 부분은 채널명, 나머지는 내용
@@ -96,7 +91,6 @@ public class ClientHandler implements Runnable {
 
         // .txt 파일로 저장 (덮어쓰는 방식)
         try (FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/resources/channel/" + channelName + "/info.txt")) {
-            writer.write(content + "\n");
             System.out.println("Content saved to " + channelName + "/info.txt");
         } catch (IOException e) {
             e.printStackTrace();
@@ -106,7 +100,7 @@ public class ClientHandler implements Runnable {
         ChannelManager.broadcastInfo(currentChannel, argument);
     }
 
-
+    //수정된 공지 보내기
     public void sendInfo(String argument) throws IOException {
         String filePath = System.getProperty("user.dir") + "/resources/channel/" + currentChannel + "/info.txt";
         StringBuilder infoMessage = new StringBuilder("/info ").append(argument).append("\n");
@@ -124,18 +118,18 @@ public class ClientHandler implements Runnable {
         dout.writeUTF(infoMessage.toString().trim());
     }
 
-
+    //접속 멤버 관리
     public void memberLoad() throws IOException {
         String profileUrl = loggedUser.getProfileUrl();
         String name = loggedUser.getName();
         String message = profileUrl+","+name;
         ChannelManager.broadcastMember(currentChannel,message);
     }
-
+    //멤버 전송
     public void sendMember(String message) throws IOException {
         dout.writeUTF("/memberLoad "+message);
     }
-
+    //채널의 채팅 내역 불러오기
     public void chatLoad(String channelName) throws IOException {
         String chatPath = System.getProperty("user.dir") + "/resources/channel/" + channelName + "/chats.txt";
         List<String[]> chatMessages = new ArrayList<>();
@@ -189,22 +183,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    // 디렉토리와 그 안의 파일을 재귀적으로 삭제하는 메서드
-    private void deleteDirectory(File dir) {
-        File[] files = dir.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    deleteDirectory(file); // 재귀적으로 하위 디렉토리 삭제
-                } else {
-                    file.delete(); // 파일 삭제
-                }
-            }
-        }
-        dir.delete(); // 최종적으로 빈 디렉토리 삭제
-    }
 
 
+    //메시지 관리 서버 업로드 및 브로드캐스트
     public void handleMessage(String argument) throws IOException {
         String message = loggedUser.getProfileUrl()+","+loggedUser.getName()+","+argument;
         String chatMessage = message.substring(9).trim();
@@ -230,7 +211,7 @@ public class ClientHandler implements Runnable {
         //broadcast;
         //FileServer.handleFileUpload(din,dout,currentChannel,message);
     }
-
+    //메시지 전송 사진,이모지,채팅
     public void sendMessage(String message) throws IOException {
         // \profiles\Hiscord.png,주환수씨,2024-12-21 22:42:46,dd
         String chatMessage = message.substring(9).trim();
@@ -246,7 +227,7 @@ public class ClientHandler implements Runnable {
         System.out.println("서버가 클라이언트에게 전송"+message);
         dout.writeUTF(message);
     }
-
+    //로그인관리
     private void handleJoin(String newChannel) throws IOException {
         ChannelManager.leaveChannel(currentChannel, this);
         currentChannel = newChannel;
@@ -363,5 +344,20 @@ public class ClientHandler implements Runnable {
 
     private void cleanup() {
         ChannelManager.leaveChannel(currentChannel, this);
+    }
+
+    // 디렉토리와 그 안의 파일을 재귀적으로 삭제하는 메서드
+    private void deleteDirectory(File dir) {
+        File[] files = dir.listFiles();
+        if (files != null) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    deleteDirectory(file); // 재귀적으로 하위 디렉토리 삭제
+                } else {
+                    file.delete(); // 파일 삭제
+                }
+            }
+        }
+        dir.delete(); // 최종적으로 빈 디렉토리 삭제
     }
 }
