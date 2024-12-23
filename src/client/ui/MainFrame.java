@@ -1,6 +1,6 @@
 package client.ui;
 
-import client.FileClient;
+
 import models.User;
 import models.UserManager;
 
@@ -8,12 +8,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
-import java.net.Socket;
 
 public class MainFrame extends JFrame {
     private User loggedUser; // 유저
-    private String username;
-    private String localImageUrl;
     private DataOutputStream dout;
 
 

@@ -7,7 +7,6 @@ import java.io.*;
 public class InfoPanel extends JPanel {
 
     private JTextArea infoTextArea;
-    private DataInputStream din;
     private DataOutputStream dout;
     private String currentChannel;
 

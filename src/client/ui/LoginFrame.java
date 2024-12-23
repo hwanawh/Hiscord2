@@ -84,6 +84,7 @@ public class LoginFrame extends JFrame {
         idField.setCaretColor(textColor);
         idField.setFont(new Font("맑은 고딕", Font.PLAIN, 18));
         idField.setBorder(BorderFactory.createEmptyBorder(10, 15, 10, 15));
+
         gbc.gridx = 1;
         gbc.gridy = 0;
         gbc.fill = GridBagConstraints.HORIZONTAL;

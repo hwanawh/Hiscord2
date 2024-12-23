@@ -5,8 +5,7 @@ import java.awt.*;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+;
 
 public class ChannelPanel extends JPanel {
     private DefaultListModel<String> channelListModel;
