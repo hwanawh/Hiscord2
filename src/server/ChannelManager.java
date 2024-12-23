@@ -41,6 +41,15 @@ public class ChannelManager {
         }
     }
 
+    // 채널 메시지 브로드캐스트
+    public static synchronized void broadcastInfo(String channelName, String message) throws IOException {
+
+        if (channels.containsKey(channelName)) {
+            Channel channel = channels.get(channelName);
+            channel.broadcastInfo(message);
+        }
+    }
+
     // 새 채널 추가
     public static synchronized void addChannel(String channelName) {
         if (!channels.containsKey(channelName)) {

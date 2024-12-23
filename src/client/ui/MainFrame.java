@@ -30,7 +30,7 @@ public class MainFrame extends JFrame {
         add(topPanel, BorderLayout.NORTH);  // 상단에 배치
 
         // RightPanel 생성
-        RightPanel rightPanel = new RightPanel();
+        RightPanel rightPanel = new RightPanel(din,dout,"EXERCISE");
         add(rightPanel, BorderLayout.EAST);
 
         // ChannelPanel 생성
@@ -81,7 +81,8 @@ public class MainFrame extends JFrame {
                             chatPanel.cleanup();
                             //chatPanel.loadChat(newChannel);
                             System.out.println("chat load");
-                            rightPanel.updateInfoPanel(newChannel.equals("channel1")); // 채널 변경에 따라 RightPanel 업데이트
+                            dout.writeUTF("/info "+newChannel);
+                            rightPanel.setCurrentChannel(newChannel);
                             break;
 
                         case "/message":
@@ -131,9 +132,6 @@ public class MainFrame extends JFrame {
                             else{
                                 chatPanel.appendMessage(profileUrl,senderName,timestamp,greeting,null);
                             }
-
-                            System.out.println(argument);
-                            System.out.println("message");
                             break;
 
                         case "/memberLoad":
@@ -144,7 +142,18 @@ public class MainFrame extends JFrame {
                             rightPanel.loadMemberPanel(profileUrl,name); //appendMessage
                             break;
                         case "/info":
-
+                            //특정 채널의 info를 join마다 로드? 거의 무조건 최신화
+                            int firstNewlineIndex = argument.indexOf("\n");
+                            if (firstNewlineIndex != -1) {
+                                String channelName = argument.substring(0, firstNewlineIndex).trim(); // 채널 이름 추출
+                                String content = argument.substring(firstNewlineIndex + 1).trim();    // 나머지 내용 추출
+                                rightPanel.loadInfoPanel(content);
+                                // 출력
+                                System.out.println("채널 이름: " + channelName);
+                                System.out.println("내용:\n" + content);
+                            } else {
+                                System.out.println("메시지 형식 오류: " + argument);
+                            }
 
                         default:
                             System.out.println("default message");

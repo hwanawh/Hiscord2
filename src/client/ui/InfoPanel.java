@@ -1,28 +1,21 @@
 package client.ui;
 
-import models.Info;
-import server.InfoManager;
-
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import javax.swing.*;
-import java.awt.*;
+import java.io.*;
 
 public class InfoPanel extends JPanel {
 
     private JTextArea infoTextArea;
-    private InfoManager infoManager;
+    private DataInputStream din;
+    private DataOutputStream dout;
+    private String currentChannel;
 
-
-    public InfoPanel() {
+    public InfoPanel(DataOutputStream dout) {
+        this.dout=dout;
         setLayout(new BorderLayout());
         setBackground(new Color(47, 49, 54));
         setPreferredSize(new Dimension(200, 50));
-
-        this.infoManager = new InfoManager(); // InfoManager 초기화
 
         JLabel infoLabel = new JLabel("정보 패널");
         infoLabel.setForeground(new Color(220, 221, 222));
@@ -55,23 +48,42 @@ public class InfoPanel extends JPanel {
         add(bottomPanel, BorderLayout.SOUTH);
     }
 
-    public void updateInfo(String channelName) {
-        Info info = infoManager.getInfoByChannelName(channelName);
-        if (info != null) {
-            infoTextArea.setText(loadInfoFromFile(info.getFilePath()));
-        } else {
-            infoTextArea.setText("유효하지 않은 채널입니다.");
+    public void setCurrentChannel(String currentChannel){
+        this.currentChannel=currentChannel;
+    }
+
+    public void loadInfo(String content) {
+        if (content == null || content.trim().isEmpty()) {
+            infoTextArea.setText("현재 표시할 공지가 없습니다.");
+            return;
         }
+
+        // 공지 내용을 꾸며서 표시
+        StringBuilder formattedContent = new StringBuilder();
+
+        formattedContent.append("==== 공지사항 ====\n\n"); // 제목 추가
+        formattedContent.append(content.trim());          // 내용 추가
+        formattedContent.append("\n\n==================");
+
+        infoTextArea.setText(formattedContent.toString()); // 텍스트 영역에 설정
+
+        // 스크롤바 초기화
+        infoTextArea.setCaretPosition(0);
+
+        System.out.println("공지가 로드되었습니다:\n" + formattedContent);
     }
 
     private void openNoticeEditDialog() {
-        String channelName = "channel1"; // 예시로 채널 1을 사용, 실제로는 사용자나 설정에 따라 결정됨
-        Info info = infoManager.getInfoByChannelName(channelName);
-        if (info != null) {
-            String currentNotice = loadInfoFromFile(info.getFilePath());
-            showEditDialog(channelName, currentNotice);
-        }
+        String currentNotice = infoTextArea.getText()
+                .replace("==== 공지사항 ====\n\n", "")
+                .replace("\n\n==================", "")
+                .trim();
+
+        showEditDialog(currentChannel, currentNotice);
     }
+
+
+
 
     private void showEditDialog(String channelName, String currentNotice) {
         JDialog editDialog = new JDialog((Frame) null, "공지 수정", true);
@@ -84,41 +96,45 @@ public class InfoPanel extends JPanel {
         textArea.setForeground(Color.WHITE);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
-
         textArea.setCaretColor(Color.WHITE);
 
         JScrollPane scrollPane = new JScrollPane(textArea);
         editDialog.add(scrollPane, BorderLayout.CENTER);
 
         JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(47, 49, 54));
+
         JButton saveButton = new JButton("저장");
+        saveButton.setBackground(new Color(88, 101, 242));
+        saveButton.setForeground(Color.WHITE);
+        saveButton.setFocusPainted(false);
         saveButton.addActionListener(e -> {
-            String updatedNotice = textArea.getText();
-            infoManager.updateNotice(channelName, updatedNotice); // 공지 수정
-            updateInfo(channelName); // 패널 갱신
-            editDialog.dispose(); // 창 닫기
+            String updatedNotice = textArea.getText().trim();
+
+            if (dout != null) {
+                try {
+                    dout.writeUTF("/info " + channelName + " "+updatedNotice);
+                    editDialog.dispose();
+                } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(this, "서버로 전송 중 오류가 발생했습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+                    ex.printStackTrace();
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "서버 연결이 없습니다.", "오류", JOptionPane.ERROR_MESSAGE);
+            }
         });
-        buttonPanel.add(saveButton);
 
         JButton cancelButton = new JButton("취소");
-        cancelButton.addActionListener(e -> editDialog.dispose()); // 취소 시 창 닫기
+        cancelButton.setBackground(new Color(153, 153, 153));
+        cancelButton.setForeground(Color.WHITE);
+        cancelButton.setFocusPainted(false);
+        cancelButton.addActionListener(e -> editDialog.dispose()); // 취소 시 다이얼로그 닫기
+
+        buttonPanel.add(saveButton);
         buttonPanel.add(cancelButton);
 
         editDialog.add(buttonPanel, BorderLayout.SOUTH);
         editDialog.setVisible(true);
-    }
-
-    private String loadInfoFromFile(String filePath) {
-        StringBuilder content = new StringBuilder();
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                content.append(line).append("\n");
-            }
-        } catch (IOException e) {
-            content.append("정보를 불러오는 데 오류가 발생했습니다.");
-        }
-        return content.toString();
     }
 
     private JScrollPane createTransparentScrollPane(JTextArea textArea) {

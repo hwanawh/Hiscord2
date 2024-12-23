@@ -40,6 +40,12 @@ public class Channel {
         }
     }
 
+    public void broadcastInfo(String message) throws IOException{
+        for (ClientHandler client : clients) {
+            client.sendInfo(message);
+        }
+    }
+
 
 
     public List<ClientHandler> getClients() {

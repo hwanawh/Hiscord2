@@ -7,8 +7,6 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 
-import server.InfoManager;
-
 public class LoginFrame extends JFrame {
     private JTextField idField;
     private JPasswordField passwordField;

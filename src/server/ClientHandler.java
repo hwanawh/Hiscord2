@@ -50,6 +50,7 @@ public class ClientHandler implements Runnable {
         switch (command) {
             case "/join":
                 handleJoin(argument);
+                sendInfo(argument);
                 break;
             case "/login":
                 handleLogin(argument);
@@ -59,7 +60,7 @@ public class ClientHandler implements Runnable {
                 break;
             case "/info":
                 handleInfo(argument);
-
+                break;
             case "/updateUserInfo":
                 handleUpdateUserInfo(argument);  // 새 명령어 처리
                 break;
@@ -68,9 +69,6 @@ public class ClientHandler implements Runnable {
                 break;
             case "/leave":
                 handleLeave(argument);
-                break;
-            case "/updateNotice":
-                handleUpdateNotice(argument);
                 break;
             case "/message":
                 handleMessage(argument);
@@ -84,9 +82,48 @@ public class ClientHandler implements Runnable {
         }
     }
 
-    public void handleInfo(String argument){//수정된 공지사항을 클라이언트에게 전부 배포;
 
+    public void handleInfo(String argument) throws IOException {
+        // 띄어쓰기로 분리
+        String[] parts = argument.split(" ", 2);
+
+        // 첫 번째 부분은 채널명, 나머지는 내용
+        String channelName = parts[0];
+        String content = parts.length > 1 ? parts[1] : "";
+
+        System.out.println("Channel Name: " + channelName);
+        System.out.println("Content: " + content);
+
+        // .txt 파일로 저장 (덮어쓰는 방식)
+        try (FileWriter writer = new FileWriter(System.getProperty("user.dir") + "/resources/channel/" + channelName + "/info.txt")) {
+            writer.write(content + "\n");
+            System.out.println("Content saved to " + channelName + "/info.txt");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // broadcast
+        ChannelManager.broadcastInfo(currentChannel, argument);
     }
+
+
+    public void sendInfo(String argument) throws IOException {
+        String filePath = System.getProperty("user.dir") + "/resources/channel/" + currentChannel + "/info.txt";
+        StringBuilder infoMessage = new StringBuilder("/info ").append(argument).append("\n");
+        // 파일 내용 읽기
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                infoMessage.append(line).append("\n");
+            }
+        } catch (IOException e) {
+            infoMessage.append("파일을 읽는 중 오류가 발생했습니다.");
+        }
+
+        // UTF-8 텍스트 메시지 전송
+        dout.writeUTF(infoMessage.toString().trim());
+    }
+
 
     public void memberLoad() throws IOException {
         String profileUrl = loggedUser.getProfileUrl();
@@ -254,6 +291,7 @@ public class ClientHandler implements Runnable {
         }
     }
 
+
     private void handleUpdateUserInfo(String argument) throws IOException {
         String[] updatedInfo = argument.split("/", 3); // 세 개로 나눔
         if (updatedInfo.length == 3) {
@@ -299,6 +337,7 @@ public class ClientHandler implements Runnable {
             dout.writeUTF("채널 이름을 입력하세요.");
         }
     }
+
     private void handleLeave(String channelName) throws IOException {
         if (currentChannel.equals(channelName)) {
             ChannelManager.leaveChannel(currentChannel, this);
@@ -319,19 +358,6 @@ public class ClientHandler implements Runnable {
             currentChannel = null; // 채널을 나갔으므로 현재 채널을 null로 설정
         } else {
             dout.writeUTF("현재 채널과 일치하지 않는 채널입니다.");
-        }
-    }
-
-
-
-    private void handleUpdateNotice(String newNotice) throws IOException {
-        newNotice = newNotice.trim();
-        if (!newNotice.isEmpty()) {
-            InfoManager infoManager = new InfoManager();
-            infoManager.updateNotice(currentChannel, newNotice);
-            dout.writeUTF("공지사항이 업데이트되었습니다.");
-        } else {
-            dout.writeUTF("새로운 공지사항을 입력하세요.");
         }
     }
 

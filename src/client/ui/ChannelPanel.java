@@ -58,9 +58,6 @@ public class ChannelPanel extends JPanel {
                     } catch (IOException ex) {
                         throw new RuntimeException(ex);
                     }
-                    // InfoPanel 업데이트
-                    boolean isChannel1 = selectedChannel.equals("channel1");
-                    rightPanel.updateInfoPanel(isChannel1);
                 }
             }
         });
