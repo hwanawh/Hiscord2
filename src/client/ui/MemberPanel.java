@@ -30,8 +30,6 @@ public class MemberPanel extends JPanel {
         // 커스텀 렌더러 설정
         memberList.setCellRenderer(new MemberCellRenderer());
 
-
-
         JScrollPane memberScrollPane = new JScrollPane(memberList);
         memberScrollPane.setBorder(BorderFactory.createEmptyBorder());
         memberScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
