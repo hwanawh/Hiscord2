@@ -71,36 +71,4 @@ public class FileServer {
             System.out.println("파일 전송 완료: " + file.getName());
         }
     }
-
-
-
-
-
-
-    // 파일 다운로드 처리
-    public static void handleFileDownload(DataInputStream din,DataOutputStream dout) throws IOException {
-        try {
-            // 다운로드할 파일 이름 받기
-            String fileName = din.readUTF();
-            File file = new File(FILE_DIRECTORY, fileName);
-
-            if (file.exists()) {
-                dout.writeUTF("DOWNLOAD SUCCESS");
-                dout.writeLong(file.length());  // 파일 크기 전송
-
-                try (FileInputStream fileInputStream = new FileInputStream(file)) {
-                    byte[] buffer = new byte[4096];
-                    int bytesRead;
-                    while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                        dout.write(buffer, 0, bytesRead);
-                    }
-                }
-            } else {
-                dout.writeUTF("DOWNLOAD FAILED: File not found.");
-            }
-        } catch (IOException e) {
-            dout.writeUTF("DOWNLOAD FAILED: Error during file download.");
-            e.printStackTrace();
-        }
-    }
 }
